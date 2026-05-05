@@ -42,8 +42,10 @@ class AppStore {
 
     try {
       const response = await api.fetch('getall');
+      console.log('Store Refresh Response:', response);
       if (response.status === 'success') {
         this.state = { ...this.state, ...response.data, isLoading: false };
+        console.log('New State Cuentas:', this.state.cuentas);
       }
     } catch (error) {
       this.state.isLoading = false;

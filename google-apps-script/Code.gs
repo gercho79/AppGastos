@@ -87,27 +87,32 @@ function doPost(e) {
 
 function getSheetData(ss, name) {
   const sheet = ss.getSheetByName(name);
-  if (!sheet) {
-    // Si la hoja no existe, la creamos con encabezados básicos si es necesario
-    // Por simplicidad en este script, asumimos que ya existen o se crean manualmente
-    return [];
-  }
-  const values = sheet.getDataRange().getValues();
-  const headers = values.shift();
+  if (!sheet) return [];
   
-  return values.map(row => {
-    const obj = {};
-    headers.forEach((h, i) => obj[h] = row[i]);
-    return obj;
-  });
+  const values = sheet.getDataRange().getValues();
+  if (values.length < 2) return []; // Solo encabezados o vacío
+  
+  const headers = values.shift().map(h => h.toString().trim().toLowerCase());
+  
+  return values
+    .filter(row => row.some(cell => cell !== '')) // Ignorar filas vacías
+    .map(row => {
+      const obj = {};
+      headers.forEach((h, i) => {
+        if (h) obj[h] = row[i];
+      });
+      return obj;
+    });
 }
 
 function appendDataToSheet(ss, name, data) {
   const sheet = ss.getSheetByName(name);
   if (!sheet) throw new Error('Hoja no encontrada: ' + name);
   
-  const headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
-  const row = headers.map(h => data[h] || '');
+  const headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0]
+    .map(h => h.toString().trim().toLowerCase());
+    
+  const row = headers.map(h => data[h] !== undefined ? data[h] : '');
   
   sheet.appendRow(row);
 }
