@@ -46,6 +46,11 @@ class App {
       await store.init();
       this.router = new AppRouter(routes);
       
+      // Auto-refresh current view when store changes
+      store.subscribe(() => {
+        if (this.router) this.router.resolve();
+      });
+
       document.getElementById('splash').classList.add('hidden');
       document.getElementById('main-layout').classList.remove('hidden');
     } catch (error) {

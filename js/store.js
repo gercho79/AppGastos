@@ -1,5 +1,5 @@
 import { api } from './api.js';
-import { showToast } from './utils.js';
+import { showToast, toggleLoading } from './utils.js';
 
 class AppStore {
   constructor() {
@@ -117,42 +117,67 @@ class AppStore {
 
   // --- Actions ---
   async addGasto(gasto) {
-    const res = await api.post('addGasto', { id: Date.now(), ...gasto });
-    if (res.status === 'success') {
-      await this.refreshAll();
-      showToast('Gasto registrado');
+    toggleLoading(true, 'Guardando gasto...');
+    try {
+      const res = await api.post('addGasto', { id: Date.now(), ...gasto });
+      if (res.status === 'success') {
+        await this.refreshAll();
+        showToast('Gasto registrado');
+      }
+    } finally {
+      toggleLoading(false);
     }
   }
 
   async addIngreso(ingreso) {
-    const res = await api.post('addIngreso', { id: Date.now(), ...ingreso });
-    if (res.status === 'success') {
-      await this.refreshAll();
-      showToast('Ingreso registrado');
+    toggleLoading(true, 'Registrando ingreso...');
+    try {
+      const res = await api.post('addIngreso', { id: Date.now(), ...ingreso });
+      if (res.status === 'success') {
+        await this.refreshAll();
+        showToast('Ingreso registrado');
+      }
+    } finally {
+      toggleLoading(false);
     }
   }
 
   async addTransferencia(trans) {
-    const res = await api.post('addTransferencia', { id: Date.now(), ...trans });
-    if (res.status === 'success') {
-      await this.refreshAll();
-      showToast('Transferencia realizada');
+    toggleLoading(true, 'Procesando transferencia...');
+    try {
+      const res = await api.post('addTransferencia', { id: Date.now(), ...trans });
+      if (res.status === 'success') {
+        await this.refreshAll();
+        showToast('Transferencia realizada');
+      }
+    } finally {
+      toggleLoading(false);
     }
   }
 
   async addCuenta(cuenta) {
-    const res = await api.post('addCuenta', { id: Date.now(), ...cuenta });
-    if (res.status === 'success') {
-      await this.refreshAll();
-      showToast('Cuenta creada con éxito');
+    toggleLoading(true, 'Creando cuenta...');
+    try {
+      const res = await api.post('addCuenta', { id: Date.now(), ...cuenta });
+      if (res.status === 'success') {
+        await this.refreshAll();
+        showToast('Cuenta creada con éxito');
+      }
+    } finally {
+      toggleLoading(false);
     }
   }
 
   async addPeriodo(periodo) {
-    const res = await api.post('addPeriodo', { id: Date.now(), ...periodo });
-    if (res.status === 'success') {
-      await this.refreshAll();
-      showToast('Período abierto con éxito');
+    toggleLoading(true, 'Abriendo período...');
+    try {
+      const res = await api.post('addPeriodo', { id: Date.now(), ...periodo });
+      if (res.status === 'success') {
+        await this.refreshAll();
+        showToast('Período abierto con éxito');
+      }
+    } finally {
+      toggleLoading(false);
     }
   }
 }

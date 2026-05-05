@@ -82,7 +82,6 @@ export const IngresosView = {
         periodo: new Date(document.getElementById('i-fecha').value).getFullYear()
       });
       Modal.hide();
-      this.render(document.getElementById('page-content'));
     });
 
     Modal.show('Nuevo Ingreso', form);
@@ -123,7 +122,6 @@ export const IngresosView = {
         cuentaDestino: document.getElementById('t-destino').value
       });
       Modal.hide();
-      this.render(document.getElementById('page-content'));
     });
 
     Modal.show('Transferencia', form);
@@ -166,7 +164,6 @@ export const IngresosView = {
         descripcion: 'Compra de USD'
       });
       Modal.hide();
-      this.render(document.getElementById('page-content'));
     });
 
     Modal.show('Compra de USD', form);

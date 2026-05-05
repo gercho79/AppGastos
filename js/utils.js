@@ -38,6 +38,16 @@ export const showToast = (message, type = 'info') => {
   }, 3000);
 };
 
+export const toggleLoading = (show, message = 'Guardando...') => {
+  const overlay = document.getElementById('loading-overlay');
+  const text = document.getElementById('loading-text');
+  if (text) text.textContent = message;
+  if (overlay) {
+    if (show) overlay.classList.remove('hidden');
+    else overlay.classList.add('hidden');
+  }
+};
+
 export const generateId = () => {
   return Math.random().toString(36).substr(2, 9);
 };

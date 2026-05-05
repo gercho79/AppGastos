@@ -99,7 +99,6 @@ export const GastosView = {
       
       await store.addGasto(gasto);
       Modal.hide();
-      this.render(document.getElementById('page-content'));
     });
 
     Modal.show('Nuevo Gasto', form);

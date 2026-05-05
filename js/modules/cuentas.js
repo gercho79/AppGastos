@@ -65,7 +65,6 @@ export const CuentasView = {
         activa: true
       });
       Modal.hide();
-      this.render(document.getElementById('page-content'));
     });
 
     Modal.show('Nueva Cuenta', form);
