@@ -1,4 +1,5 @@
 import { store } from '../store.js';
+import { api } from '../api.js';
 import { Modal } from '../components.js';
 import { formatCurrency } from '../utils.js';
 
@@ -57,13 +58,12 @@ export const CuentasView = {
 
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
-      await api.post('addCuenta', {
+      await store.addCuenta({
         nombre: document.getElementById('c-nombre').value,
         moneda: document.getElementById('c-moneda').value,
         saldoInicial: document.getElementById('c-saldo').value,
         activa: true
       });
-      await store.refreshAll();
       Modal.hide();
       this.render(document.getElementById('page-content'));
     });

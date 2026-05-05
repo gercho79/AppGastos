@@ -1,4 +1,5 @@
 {
+  "api_url": "https://script.google.com/macros/s/AKfycbytCbdFJmQjAoRrX-hxcqYsEbU9AcqcpZ-kXQcWdNoUIbhInm9q-owHU4c3qJ-rgs-AqQ/exec",
   "name": "AppGastos",
   "short_name": "AppGastos",
   "description": "Gestión de gastos e ingresos personales",
@@ -46,7 +47,10 @@
       "purpose": "any maskable"
     }
   ],
-  "categories": ["finance", "utilities"],
+  "categories": [
+    "finance",
+    "utilities"
+  ],
   "shortcuts": [
     {
       "name": "Nuevo Gasto",

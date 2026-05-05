@@ -41,7 +41,7 @@ class AppStore {
     this.notify();
 
     try {
-      const response = await api.fetch('getAll');
+      const response = await api.fetch('getall');
       if (response.status === 'success') {
         this.state = { ...this.state, ...response.data, isLoading: false };
       }
@@ -49,7 +49,7 @@ class AppStore {
       this.state.isLoading = false;
       console.error('Store Refresh Error:', error);
     }
-    
+
     this.notify();
   }
 
@@ -57,7 +57,7 @@ class AppStore {
 
   getBalances() {
     const balances = {};
-    
+
     // Initial balances
     this.state.cuentas.forEach(c => {
       balances[c.nombre] = {
@@ -86,7 +86,7 @@ class AppStore {
       if (balances[t.cuentaOrigen]) {
         balances[t.cuentaOrigen].saldo -= parseFloat(t.importe);
       }
-      
+
       if (balances[t.cuentaDestino]) {
         // If it's a USD purchase, we use the type change
         const amountToAdd = t.tipoCambio ? t.importe / t.tipoCambio : t.importe;
@@ -107,18 +107,17 @@ class AppStore {
   getGastosByCategory(month, year) {
     const filtered = this.getFilteredGastos(month, year);
     const summary = {};
-    
+
     filtered.forEach(g => {
       summary[g.categoria] = (summary[g.categoria] || 0) + parseFloat(g.importe);
     });
-    
+
     return summary;
   }
 
   // --- Actions ---
-
   async addGasto(gasto) {
-    const res = await api.post('addGasto', gasto);
+    const res = await api.post('addGasto', { id: Date.now(), ...gasto });
     if (res.status === 'success') {
       await this.refreshAll();
       showToast('Gasto registrado');
@@ -126,7 +125,7 @@ class AppStore {
   }
 
   async addIngreso(ingreso) {
-    const res = await api.post('addIngreso', ingreso);
+    const res = await api.post('addIngreso', { id: Date.now(), ...ingreso });
     if (res.status === 'success') {
       await this.refreshAll();
       showToast('Ingreso registrado');
@@ -134,10 +133,26 @@ class AppStore {
   }
 
   async addTransferencia(trans) {
-    const res = await api.post('addTransferencia', trans);
+    const res = await api.post('addTransferencia', { id: Date.now(), ...trans });
     if (res.status === 'success') {
       await this.refreshAll();
       showToast('Transferencia realizada');
+    }
+  }
+
+  async addCuenta(cuenta) {
+    const res = await api.post('addCuenta', { id: Date.now(), ...cuenta });
+    if (res.status === 'success') {
+      await this.refreshAll();
+      showToast('Cuenta creada con éxito');
+    }
+  }
+
+  async addPeriodo(periodo) {
+    const res = await api.post('addPeriodo', { id: Date.now(), ...periodo });
+    if (res.status === 'success') {
+      await this.refreshAll();
+      showToast('Período abierto con éxito');
     }
   }
 }

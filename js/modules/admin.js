@@ -40,8 +40,7 @@ export const AdminView = {
     `;
 
     document.getElementById('add-periodo-btn').addEventListener('click', async () => {
-      await api.post('addPeriodo', { año: 2026, estado: 'Abierto' });
-      await store.refreshAll();
+      await store.addPeriodo({ año: 2026, estado: 'Abierto' });
       this.render(container);
     });
   }

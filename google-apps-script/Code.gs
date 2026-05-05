@@ -6,11 +6,18 @@
 const SPREADSHEET_ID = 'TU_SPREADSHEET_ID'; // REEMPLAZAR CON TU ID
 
 function doGet(e) {
-  const action = e.parameter.action;
+  if (!e || !e.parameter) {
+    return jsonResponse({ 
+      status: 'error', 
+      message: 'No se recibieron parámetros. Este script debe ejecutarse como Web App.' 
+    });
+  }
+  
+  const action = (e.parameter.action || '').trim().toLowerCase();
   const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
   
   try {
-    if (action === 'getAll') {
+    if (action === 'getall') {
       return jsonResponse({
         status: 'success',
         data: {

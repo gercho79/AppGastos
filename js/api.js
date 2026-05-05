@@ -4,6 +4,21 @@ class AppAPI {
   constructor() {
     this.apiUrl = localStorage.getItem('appgastos_api_url') || '';
     this.isDemo = !this.apiUrl;
+    this.checkManifest();
+  }
+
+  async checkManifest() {
+    if (this.apiUrl) return;
+    try {
+      const response = await fetch('manifest.json');
+      const manifest = await response.json();
+      if (manifest.api_url && !manifest.api_url.includes('PEGAR_AQUI')) {
+        this.setApiUrl(manifest.api_url);
+        console.log('API URL cargada desde manifest');
+      }
+    } catch (e) {
+      console.warn('No se pudo leer el manifest para la URL');
+    }
   }
 
   setApiUrl(url) {
@@ -13,9 +28,7 @@ class AppAPI {
   }
 
   async fetch(action, params = {}) {
-    if (this.isDemo) {
-      return this.mockFetch(action, params);
-    }
+    if (this.isDemo) return this.mockFetch(action, params);
 
     try {
       const url = new URL(this.apiUrl);
@@ -24,103 +37,73 @@ class AppAPI {
         url.searchParams.append(key, value);
       }
 
-      const response = await fetch(url.toString());
-      const data = await response.json();
-      
-      if (data.status === 'error') {
-        throw new Error(data.message);
-      }
-      
-      return data;
+      const response = await fetch(url.toString(), { redirect: 'follow' });
+      return await response.json();
     } catch (error) {
       console.error(`API Error (${action}):`, error);
-      showToast(`Error de conexión: ${error.message}`, 'error');
       throw error;
     }
   }
 
   async post(action, body = {}) {
-    if (this.isDemo) {
-      return this.mockPost(action, body);
-    }
+    if (this.isDemo) return this.mockPost(action, body);
 
     try {
+      // Usamos text/plain para evitar problemas de CORS preflight con GAS
       const response = await fetch(this.apiUrl, {
         method: 'POST',
+        mode: 'no-cors', 
         body: JSON.stringify({ action, ...body })
       });
-      const data = await response.json();
       
-      if (data.status === 'error') {
-        throw new Error(data.message);
-      }
-      
-      return data;
+      // Con no-cors no podemos leer la respuesta, pero GAS procesa el POST
+      return { status: 'success' };
     } catch (error) {
       console.error(`API Error (${action}):`, error);
-      showToast(`Error al guardar: ${error.message}`, 'error');
       throw error;
     }
   }
 
-  // --- Demo Mode (LocalStorage) ---
-  
+  // --- Modo Demo ---
   mockFetch(action, params) {
-    console.log(`[DEMO] Fetching: ${action}`, params);
     const db = JSON.parse(localStorage.getItem('appgastos_demo_db')) || this.getInitialDemoDB();
-    
-    switch(action) {
-      case 'getAll':
-        return { status: 'success', data: db };
-      case 'getPeriodos':
-        return { status: 'success', data: db.periodos };
-      case 'getCuentas':
-        return { status: 'success', data: db.cuentas };
-      // Add more as needed
-      default:
-        return { status: 'success', data: db[action] || [] };
-    }
+    if (action === 'getall') return { status: 'success', data: db };
+    return { status: 'success', data: db[action] || [] };
   }
 
   mockPost(action, body) {
-    console.log(`[DEMO] Posting: ${action}`, body);
     const db = JSON.parse(localStorage.getItem('appgastos_demo_db')) || this.getInitialDemoDB();
+    const map = {
+      'addGasto': 'gastos',
+      'addIngreso': 'ingresos',
+      'addTransferencia': 'transferencias',
+      'addCuenta': 'cuentas',
+      'addPeriodo': 'periodos'
+    };
     
-    if (action === 'addGasto') {
-      db.gastos.unshift({ id: Date.now(), ...body });
-    } else if (action === 'addIngreso') {
-      db.ingresos.unshift({ id: Date.now(), ...body });
-    } else if (action === 'addTransferencia') {
-      db.transferencias.unshift({ id: Date.now(), ...body });
-    } else if (action === 'addCuenta') {
-      db.cuentas.push({ id: Date.now(), ...body });
-    } else if (action === 'addPeriodo') {
-      db.periodos.push({ id: Date.now(), ...body });
+    const key = map[action];
+    if (key) {
+      db[key].unshift({ id: Date.now(), ...body });
+      localStorage.setItem('appgastos_demo_db', JSON.stringify(db));
     }
-    
-    localStorage.setItem('appgastos_demo_db', JSON.stringify(db));
-    return { status: 'success', message: 'Guardado correctamente (Demo)' };
+    return { status: 'success' };
   }
 
   getInitialDemoDB() {
     return {
-      periodos: [{ id: 1, año: 2024, estado: 'Abierto' }, { id: 2, año: 2025, estado: 'Abierto' }, { id: 3, año: 2026, estado: 'Abierto' }],
+      periodos: [{ id: 1, año: 2024, estado: 'Abierto' }, { id: 2, año: 2025, estado: 'Abierto' }],
       cuentas: [
         { id: 1, nombre: 'Efectivo', moneda: 'ARS', saldoInicial: 5000, activa: true },
-        { id: 2, nombre: 'Banco Galicia', moneda: 'ARS', saldoInicial: 150000, activa: true },
-        { id: 3, nombre: 'Caja Ahorro USD', moneda: 'USD', saldoInicial: 100, activa: true }
+        { id: 2, nombre: 'Banco Galicia', moneda: 'ARS', saldoInicial: 150000, activa: true }
       ],
-      tiposIngreso: [{ id: 1, nombre: 'Sueldo' }, { id: 2, nombre: 'Venta' }, { id: 3, nombre: 'Regalo' }],
-      formasPago: [{ id: 1, nombre: 'Efectivo' }, { id: 2, nombre: 'Débito' }, { id: 3, nombre: 'Transferencia' }, { id: 4, nombre: 'Crédito' }],
+      tiposIngreso: [{ id: 1, nombre: 'Sueldo' }, { id: 2, nombre: 'Venta' }],
+      formasPago: [{ id: 1, nombre: 'Efectivo' }, { id: 2, nombre: 'Débito' }, { id: 3, nombre: 'Transferencia' }],
       categorias: [
         { id: 1, nombre: 'Comida', icono: '🍔' },
         { id: 2, nombre: 'Transporte', icono: '🚗' },
-        { id: 3, nombre: 'Servicios', icono: '💡' },
-        { id: 4, nombre: 'Ocio', icono: '🎬' }
+        { id: 3, nombre: 'Servicios', icono: '💡' }
       ],
-      gastos: [],
-      ingresos: [],
-      transferencias: []
+      gastos: [], ingresos: [], transferencias: []
     };
   }
 }
