@@ -182,6 +182,129 @@ class AppStore {
       toggleLoading(false);
     }
   }
+
+  // --- Tipos de Ingreso ---
+  async addTipoIngreso(nombre) {
+    toggleLoading(true, 'Agregando tipo de ingreso...');
+    try {
+      const res = await api.post('addTipoIngreso', { id: Date.now(), nombre });
+      if (res.status === 'success') {
+        await this.refreshAll();
+        showToast('Tipo de ingreso agregado');
+      }
+    } finally {
+      toggleLoading(false);
+    }
+  }
+
+  async updateTipoIngreso(id, nombre) {
+    toggleLoading(true, 'Actualizando tipo de ingreso...');
+    try {
+      const res = await api.post('updateTipoIngreso', { id, nombre });
+      if (res.status === 'success') {
+        await this.refreshAll();
+        showToast('Tipo de ingreso actualizado');
+      }
+    } finally {
+      toggleLoading(false);
+    }
+  }
+
+  async deleteTipoIngreso(id) {
+    if (!confirm('¿Estás seguro de eliminar este tipo de ingreso?')) return;
+    toggleLoading(true, 'Eliminando tipo de ingreso...');
+    try {
+      const res = await api.post('deleteTipoIngreso', { id });
+      if (res.status === 'success') {
+        await this.refreshAll();
+        showToast('Tipo de ingreso eliminado');
+      }
+    } finally {
+      toggleLoading(false);
+    }
+  }
+
+  // --- Categorías ---
+  async addCategoria(categoria) {
+    toggleLoading(true, 'Agregando categoría...');
+    try {
+      const res = await api.post('addCategoria', { id: Date.now(), ...categoria });
+      if (res.status === 'success') {
+        await this.refreshAll();
+        showToast('Categoría agregada');
+      }
+    } finally {
+      toggleLoading(false);
+    }
+  }
+
+  async updateCategoria(id, categoria) {
+    toggleLoading(true, 'Actualizando categoría...');
+    try {
+      const res = await api.post('updateCategoria', { id, ...categoria });
+      if (res.status === 'success') {
+        await this.refreshAll();
+        showToast('Categoría actualizada');
+      }
+    } finally {
+      toggleLoading(false);
+    }
+  }
+
+  async deleteCategoria(id) {
+    if (!confirm('¿Estás seguro de eliminar esta categoría?')) return;
+    toggleLoading(true, 'Eliminando categoría...');
+    try {
+      const res = await api.post('deleteCategoria', { id });
+      if (res.status === 'success') {
+        await this.refreshAll();
+        showToast('Categoría eliminada');
+      }
+    } finally {
+      toggleLoading(false);
+    }
+  }
+
+  // --- Formas de Pago ---
+  async addFormaPago(nombre) {
+    toggleLoading(true, 'Agregando forma de pago...');
+    try {
+      const res = await api.post('addFormaPago', { id: Date.now(), nombre });
+      if (res.status === 'success') {
+        await this.refreshAll();
+        showToast('Forma de pago agregada');
+      }
+    } finally {
+      toggleLoading(false);
+    }
+  }
+
+  async updateFormaPago(id, nombre) {
+    toggleLoading(true, 'Actualizando forma de pago...');
+    try {
+      const res = await api.post('updateFormaPago', { id, nombre });
+      if (res.status === 'success') {
+        await this.refreshAll();
+        showToast('Forma de pago actualizada');
+      }
+    } finally {
+      toggleLoading(false);
+    }
+  }
+
+  async deleteFormaPago(id) {
+    if (!confirm('¿Estás seguro de eliminar esta forma de pago?')) return;
+    toggleLoading(true, 'Eliminando forma de pago...');
+    try {
+      const res = await api.post('deleteFormaPago', { id });
+      if (res.status === 'success') {
+        await this.refreshAll();
+        showToast('Forma de pago eliminada');
+      }
+    } finally {
+      toggleLoading(false);
+    }
+  }
 }
 
 export const store = new AppStore();

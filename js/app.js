@@ -24,7 +24,7 @@ class App {
 
   async init() {
     this.setupEventListeners();
-    
+
     // Check if API is configured
     if (!api.apiUrl && !localStorage.getItem('appgastos_demo_mode')) {
       this.showConfigScreen();
@@ -45,7 +45,7 @@ class App {
     try {
       await store.init();
       this.router = new AppRouter(routes);
-      
+
       // Auto-refresh current view when store changes
       store.subscribe(() => {
         if (this.router) this.router.resolve();
@@ -61,23 +61,23 @@ class App {
 
   setupEventListeners() {
     // Config Screen
-    document.getElementById('cfg-save-btn').addEventListener('click', async () => {
+    /*document.getElementById('cfg-save-btn').addEventListener('click', async () => {
       const url = document.getElementById('cfg-api-url').value;
       if (url) {
         api.setApiUrl(url);
         await this.startApp();
       }
-    });
+    });*/
 
-    document.getElementById('cfg-demo-btn').addEventListener('click', async () => {
+    /*document.getElementById('cfg-demo-btn').addEventListener('click', async () => {
       localStorage.setItem('appgastos_demo_mode', 'true');
       await this.startApp();
-    });
+    });*/
 
-    document.getElementById('config-help-link').addEventListener('click', (e) => {
+    /*document.getElementById('config-help-link').addEventListener('click', (e) => {
       e.preventDefault();
       document.getElementById('config-help').classList.toggle('hidden');
-    });
+    });*/
 
     // Mobile Menu
     document.getElementById('mobile-menu-btn').addEventListener('click', () => {
@@ -101,9 +101,9 @@ class App {
     });
 
     // Sidebar Config Button
-    document.getElementById('sidebar-config-btn').addEventListener('click', () => {
+    /*document.getElementById('sidebar-config-btn').addEventListener('click', () => {
       this.showConfigScreen();
-    });
+    });*/
   }
 }
 

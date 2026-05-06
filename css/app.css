@@ -57,6 +57,9 @@ body {
 /* Utility Classes */
 .hidden { display: none !important; }
 .btn-full { width: 100%; }
+.flex-between { display: flex; align-items: center; justify-content: space-between; }
+.flex-center { display: flex; align-items: center; }
+.flex-column { display: flex; flex-direction: column; }
 
 /* Splash Screen */
 .splash-screen {
@@ -253,6 +256,11 @@ body {
   color: var(--text-primary);
 }
 
+.btn-sm {
+  padding: 6px 12px;
+  font-size: 0.85rem;
+}
+
 /* Layout */
 .main-layout {
   display: flex;
@@ -327,6 +335,12 @@ body {
 .sidebar-footer {
   padding: 16px;
   border-top: 1px solid var(--glass-border);
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+}
+
+.sidebar-footer p {
+  margin-bottom: 4px;
 }
 
 /* Content Area */
@@ -521,6 +535,18 @@ body {
   overflow-y: auto;
 }
 
+.modal-form {
+  display: flex;
+  flex-direction: column;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 24px;
+}
+
 /* Lists and Items */
 .list-container {
   display: flex;
@@ -541,6 +567,34 @@ body {
 
 .item-card:hover {
   background: var(--surface-alt);
+}
+
+.item-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.item-actions button {
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  transition: var(--transition);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.item-actions button:hover {
+  background: var(--glass);
+  color: var(--text-primary);
+}
+
+.item-actions button.delete-tipo-btn:hover,
+.item-actions button.delete-cat-btn:hover {
+  color: var(--danger);
 }
 
 .item-info h4 {

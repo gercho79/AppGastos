@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
@@ -17,14 +18,16 @@
   <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+    rel="stylesheet" />
 
   <!-- Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 
   <!-- Styles -->
-  <link rel="stylesheet" href="css/app.css" />
+  <link rel="stylesheet" href="/css/app.css" />
 </head>
+
 <body>
 
   <div id="app">
@@ -34,13 +37,14 @@
       <div class="splash-content">
         <div class="splash-logo">
           <svg width="64" height="64" viewBox="0 0 64 64" fill="none">
-            <rect width="64" height="64" rx="16" fill="url(#splashGrad)"/>
-            <path d="M20 44V28l12-8 12 8v16" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
-            <path d="M28 44v-8h8v8" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+            <rect width="64" height="64" rx="16" fill="url(#splashGrad)" />
+            <path d="M20 44V28l12-8 12 8v16" stroke="#fff" stroke-width="3" stroke-linecap="round"
+              stroke-linejoin="round" />
+            <path d="M28 44v-8h8v8" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
             <defs>
               <linearGradient id="splashGrad" x1="0" y1="0" x2="64" y2="64">
-                <stop offset="0%" stop-color="#6c63ff"/>
-                <stop offset="100%" stop-color="#4ecdc4"/>
+                <stop offset="0%" stop-color="#6c63ff" />
+                <stop offset="100%" stop-color="#4ecdc4" />
               </linearGradient>
             </defs>
           </svg>
@@ -57,49 +61,19 @@
       <div class="config-content">
         <div class="config-header">
           <svg width="48" height="48" viewBox="0 0 64 64" fill="none">
-            <rect width="64" height="64" rx="16" fill="url(#cfgGrad)"/>
-            <path d="M20 44V28l12-8 12 8v16" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
-            <path d="M28 44v-8h8v8" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+            <rect width="64" height="64" rx="16" fill="url(#cfgGrad)" />
+            <path d="M20 44V28l12-8 12 8v16" stroke="#fff" stroke-width="3" stroke-linecap="round"
+              stroke-linejoin="round" />
+            <path d="M28 44v-8h8v8" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
             <defs>
               <linearGradient id="cfgGrad" x1="0" y1="0" x2="64" y2="64">
-                <stop offset="0%" stop-color="#6c63ff"/>
-                <stop offset="100%" stop-color="#4ecdc4"/>
+                <stop offset="0%" stop-color="#6c63ff" />
+                <stop offset="100%" stop-color="#4ecdc4" />
               </linearGradient>
             </defs>
           </svg>
           <h1>AppGastos</h1>
           <p>Configuración inicial</p>
-        </div>
-        <div class="config-card">
-          <h2>Conectar con Google Sheets</h2>
-          <p class="config-desc">
-            Esta app usa Google Sheets como base de datos. Necesitás crear un Apps Script 
-            y pegar la URL del Web App aquí.
-            <a href="#" id="config-help-link" class="config-link">Ver instrucciones</a>
-          </p>
-          <div class="form-group">
-            <label class="form-label" for="cfg-api-url">URL del Web App (Google Apps Script)</label>
-            <input type="url" id="cfg-api-url" class="form-input" 
-              placeholder="https://script.google.com/macros/s/..." />
-          </div>
-          <div id="config-help" class="config-help-box hidden">
-            <h3>📋 Instrucciones</h3>
-            <ol>
-              <li>Abrí <a href="https://sheets.google.com" target="_blank">Google Sheets</a> y creá una hoja nueva.</li>
-              <li>Andá a <strong>Extensiones → Apps Script</strong>.</li>
-              <li>Borrá el código existente y pegá el contenido del archivo <code>google-apps-script/Code.gs</code>.</li>
-              <li>Reemplazá <code>TU_SPREADSHEET_ID</code> con el ID de tu hoja (lo ves en la URL).</li>
-              <li>Guardá y hacé clic en <strong>Implementar → Nueva implementación</strong>.</li>
-              <li>Elegí tipo <strong>Aplicación web</strong>, ejecutar como <strong>Yo</strong>, acceso <strong>Cualquier usuario</strong>.</li>
-              <li>Copiá la URL que te da y pegala aquí.</li>
-            </ol>
-          </div>
-          <button id="cfg-save-btn" class="btn btn-primary btn-full">
-            <span>Conectar y comenzar</span>
-          </button>
-          <button id="cfg-demo-btn" class="btn btn-ghost btn-full" style="margin-top: 8px;">
-            Probar en modo demo (sin Google Sheets)
-          </button>
         </div>
       </div>
     </div>
@@ -112,13 +86,14 @@
         <div class="sidebar-header">
           <div class="sidebar-logo">
             <svg width="32" height="32" viewBox="0 0 64 64" fill="none">
-              <rect width="64" height="64" rx="12" fill="url(#sideGrad)"/>
-              <path d="M20 44V28l12-8 12 8v16" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
-              <path d="M28 44v-8h8v8" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+              <rect width="64" height="64" rx="12" fill="url(#sideGrad)" />
+              <path d="M20 44V28l12-8 12 8v16" stroke="#fff" stroke-width="3" stroke-linecap="round"
+                stroke-linejoin="round" />
+              <path d="M28 44v-8h8v8" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
               <defs>
                 <linearGradient id="sideGrad" x1="0" y1="0" x2="64" y2="64">
-                  <stop offset="0%" stop-color="#6c63ff"/>
-                  <stop offset="100%" stop-color="#4ecdc4"/>
+                  <stop offset="0%" stop-color="#6c63ff" />
+                  <stop offset="100%" stop-color="#4ecdc4" />
                 </linearGradient>
               </defs>
             </svg>
@@ -129,48 +104,48 @@
         <nav class="sidebar-nav">
           <a href="#dashboard" class="nav-item" data-route="dashboard">
             <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/>
-              <rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>
+              <rect x="3" y="3" width="7" height="7" rx="1" />
+              <rect x="14" y="3" width="7" height="7" rx="1" />
+              <rect x="3" y="14" width="7" height="7" rx="1" />
+              <rect x="14" y="14" width="7" height="7" rx="1" />
             </svg>
             <span>Dashboard</span>
           </a>
           <a href="#gastos" class="nav-item" data-route="gastos">
             <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M12 2v20M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/>
+              <path d="M12 2v20M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6" />
             </svg>
             <span>Gastos</span>
           </a>
           <a href="#ingresos" class="nav-item" data-route="ingresos">
             <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/>
+              <line x1="12" y1="19" x2="12" y2="5" />
+              <polyline points="5 12 12 5 19 12" />
             </svg>
             <span>Ingresos</span>
           </a>
           <a href="#cuentas" class="nav-item" data-route="cuentas">
             <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <rect x="2" y="5" width="20" height="14" rx="2"/>
-              <line x1="2" y1="10" x2="22" y2="10"/>
+              <rect x="2" y="5" width="20" height="14" rx="2" />
+              <line x1="2" y1="10" x2="22" y2="10" />
             </svg>
             <span>Cuentas</span>
           </a>
           <div class="nav-divider"></div>
           <a href="#admin" class="nav-item" data-route="admin">
             <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <circle cx="12" cy="12" r="3"/>
-              <path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/>
+              <circle cx="12" cy="12" r="3" />
+              <path
+                d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z" />
             </svg>
             <span>Administración</span>
           </a>
         </nav>
 
         <div class="sidebar-footer">
-          <button id="sidebar-config-btn" class="btn btn-ghost btn-sm" title="Configuración">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
-              <circle cx="12" cy="12" r="3"/>
-              <path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/>
-            </svg>
-            <span>Configuración</span>
-          </button>
+          <p>2026 - Todos los derechos reservados</p>
+          <p>WatermelonStudio</p>
+          <p>v1.0</p>
         </div>
       </aside>
 
@@ -180,7 +155,9 @@
           <div class="header-left">
             <button id="mobile-menu-btn" class="mobile-menu-btn">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="22" height="22">
-                <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
+                <line x1="3" y1="6" x2="21" y2="6" />
+                <line x1="3" y1="12" x2="21" y2="12" />
+                <line x1="3" y1="18" x2="21" y2="18" />
               </svg>
             </button>
             <h1 id="page-title" class="page-title">Dashboard</h1>
@@ -201,34 +178,38 @@
       <nav id="bottom-nav" class="bottom-nav">
         <a href="#dashboard" class="bottom-nav-item" data-route="dashboard">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/>
-            <rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>
+            <rect x="3" y="3" width="7" height="7" rx="1" />
+            <rect x="14" y="3" width="7" height="7" rx="1" />
+            <rect x="3" y="14" width="7" height="7" rx="1" />
+            <rect x="14" y="14" width="7" height="7" rx="1" />
           </svg>
           <span>Dashboard</span>
         </a>
         <a href="#gastos" class="bottom-nav-item" data-route="gastos">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M12 2v20M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/>
+            <path d="M12 2v20M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6" />
           </svg>
           <span>Gastos</span>
         </a>
         <a href="#ingresos" class="bottom-nav-item" data-route="ingresos">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/>
+            <line x1="12" y1="19" x2="12" y2="5" />
+            <polyline points="5 12 12 5 19 12" />
           </svg>
           <span>Ingresos</span>
         </a>
         <a href="#cuentas" class="bottom-nav-item" data-route="cuentas">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <rect x="2" y="5" width="20" height="14" rx="2"/>
-            <line x1="2" y1="10" x2="22" y2="10"/>
+            <rect x="2" y="5" width="20" height="14" rx="2" />
+            <line x1="2" y1="10" x2="22" y2="10" />
           </svg>
           <span>Cuentas</span>
         </a>
         <a href="#admin" class="bottom-nav-item" data-route="admin">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <circle cx="12" cy="12" r="3"/>
-            <path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/>
+            <circle cx="12" cy="12" r="3" />
+            <path
+              d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z" />
           </svg>
           <span>Admin</span>
         </a>
@@ -243,7 +224,8 @@
           <h2 id="modal-title" class="modal-title"></h2>
           <button id="modal-close" class="modal-close" aria-label="Cerrar">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20">
-              <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+              <line x1="18" y1="6" x2="6" y2="18" />
+              <line x1="6" y1="6" x2="18" y2="18" />
             </svg>
           </button>
         </div>
@@ -265,7 +247,7 @@
   <!-- Mobile Sidebar Overlay -->
   <div id="sidebar-overlay" class="sidebar-overlay hidden"></div>
 
-  <script type="module" src="js/app.js"></script>
+  <script type="module" src="/js/app.js"></script>
 
   <script>
     if ('serviceWorker' in navigator) {
@@ -277,4 +259,5 @@
     }
   </script>
 </body>
+
 </html>

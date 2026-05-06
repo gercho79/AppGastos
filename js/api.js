@@ -73,19 +73,61 @@ class AppAPI {
 
   mockPost(action, body) {
     const db = JSON.parse(localStorage.getItem('appgastos_demo_db')) || this.getInitialDemoDB();
-    const map = {
+    
+    // Mapping add actions
+    const addMap = {
       'addGasto': 'gastos',
       'addIngreso': 'ingresos',
       'addTransferencia': 'transferencias',
       'addCuenta': 'cuentas',
-      'addPeriodo': 'periodos'
+      'addPeriodo': 'periodos',
+      'addTipoIngreso': 'tiposIngreso',
+      'addCategoria': 'categorias',
+      'addFormaPago': 'formasPago'
     };
-    
-    const key = map[action];
-    if (key) {
-      db[key].unshift({ id: Date.now(), ...body });
+
+    if (addMap[action]) {
+      const key = addMap[action];
+      db[key].unshift({ id: body.id || Date.now(), ...body });
       localStorage.setItem('appgastos_demo_db', JSON.stringify(db));
+      return { status: 'success' };
     }
+
+    // Handle updates
+    if (action.startsWith('update')) {
+      const entity = action.replace('update', '');
+      const key = entity.charAt(0).toLowerCase() + entity.slice(1) + (entity.endsWith('s') ? '' : 's');
+      // Fix specific pluralization if needed
+      const entityMap = { 
+        'tipoIngreso': 'tiposIngreso', 
+        'categoria': 'categorias',
+        'formaPago': 'formasPago'
+      };
+      const dbKey = entityMap[entity.charAt(0).toLowerCase() + entity.slice(1)] || key;
+      
+      const index = db[dbKey].findIndex(item => item.id.toString() === body.id.toString());
+      if (index !== -1) {
+        db[dbKey][index] = { ...db[dbKey][index], ...body };
+        localStorage.setItem('appgastos_demo_db', JSON.stringify(db));
+        return { status: 'success' };
+      }
+    }
+
+    // Handle deletes
+    if (action.startsWith('delete')) {
+      const entity = action.replace('delete', '');
+      const entityMap = { 
+        'tipoIngreso': 'tiposIngreso', 
+        'categoria': 'categorias',
+        'formaPago': 'formasPago'
+      };
+      const dbKey = entityMap[entity.charAt(0).toLowerCase() + entity.slice(1)] || (entity.charAt(0).toLowerCase() + entity.slice(1) + 's');
+      
+      db[dbKey] = db[dbKey].filter(item => item.id.toString() !== body.id.toString());
+      localStorage.setItem('appgastos_demo_db', JSON.stringify(db));
+      return { status: 'success' };
+    }
+
     return { status: 'success' };
   }
 
