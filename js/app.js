@@ -5,7 +5,7 @@ import { GastosView } from './modules/gastos.js';
 import { IngresosView } from './modules/ingresos.js';
 import { CuentasView } from './modules/cuentas.js';
 import { AdminView } from './modules/admin.js';
-import { api } from './api.js';
+import { auth } from './auth.js';
 import { Modal } from './components.js';
 
 const routes = {
@@ -25,60 +25,53 @@ class App {
   async init() {
     this.setupEventListeners();
 
-    // Check if API is configured
-    if (!api.apiUrl && !localStorage.getItem('appgastos_demo_mode')) {
-      this.showConfigScreen();
+    // Initialize Auth and Google Library
+    auth.init((isAuthenticated) => {
+      this.updateAuthUI(isAuthenticated);
+      if (isAuthenticated) {
+        store.refreshAll();
+      }
+    });
+
+    this.router = new AppRouter(routes);
+    
+    // Refresh data periodically if authenticated
+    setInterval(() => {
+      if (auth.isAuthenticated()) {
+        store.refreshAll();
+      }
+    }, 5 * 60 * 1000);
+
+    // Auto-refresh current view when store changes
+    store.subscribe(() => {
+      if (this.router) this.router.resolve();
+    });
+  }
+
+  updateAuthUI(isAuthenticated) {
+    const container = document.getElementById('auth-container');
+    if (!container) return;
+
+    if (isAuthenticated) {
+      container.innerHTML = `
+        <div style="margin-bottom: 12px; font-size: 0.85rem; color: var(--text-secondary); text-align: center;">
+          <div class="status-indicator sync-ok" style="display: inline-block; margin-right: 6px;"></div>
+          Conectado
+        </div>
+        <button id="logout-btn" class="btn btn-ghost btn-sm btn-full">Cerrar Sesión</button>
+      `;
+      document.getElementById('logout-btn').onclick = () => auth.logout();
     } else {
-      await this.startApp();
-    }
-  }
-
-  showConfigScreen() {
-    document.getElementById('splash').classList.add('hidden');
-    document.getElementById('config-screen').classList.remove('hidden');
-  }
-
-  async startApp() {
-    document.getElementById('config-screen').classList.add('hidden');
-    document.getElementById('splash').classList.remove('hidden');
-
-    try {
-      await store.init();
-      this.router = new AppRouter(routes);
-
-      // Auto-refresh current view when store changes
-      store.subscribe(() => {
-        if (this.router) this.router.resolve();
-      });
-
-      document.getElementById('splash').classList.add('hidden');
-      document.getElementById('main-layout').classList.remove('hidden');
-    } catch (error) {
-      console.error('App start error:', error);
-      this.showConfigScreen();
+      container.innerHTML = `
+        <button id="login-btn" class="btn btn-primary btn-sm btn-full">
+          Conectar Google Sheets
+        </button>
+      `;
+      document.getElementById('login-btn').onclick = () => auth.login();
     }
   }
 
   setupEventListeners() {
-    // Config Screen
-    /*document.getElementById('cfg-save-btn').addEventListener('click', async () => {
-      const url = document.getElementById('cfg-api-url').value;
-      if (url) {
-        api.setApiUrl(url);
-        await this.startApp();
-      }
-    });*/
-
-    /*document.getElementById('cfg-demo-btn').addEventListener('click', async () => {
-      localStorage.setItem('appgastos_demo_mode', 'true');
-      await this.startApp();
-    });*/
-
-    /*document.getElementById('config-help-link').addEventListener('click', (e) => {
-      e.preventDefault();
-      document.getElementById('config-help').classList.toggle('hidden');
-    });*/
-
     // Mobile Menu
     document.getElementById('mobile-menu-btn').addEventListener('click', () => {
       const sidebar = document.getElementById('sidebar');
@@ -99,11 +92,6 @@ class App {
     document.getElementById('modal-overlay').addEventListener('click', (e) => {
       if (e.target.id === 'modal-overlay') Modal.hide();
     });
-
-    // Sidebar Config Button
-    /*document.getElementById('sidebar-config-btn').addEventListener('click', () => {
-      this.showConfigScreen();
-    });*/
   }
 }
 

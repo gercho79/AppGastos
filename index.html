@@ -31,64 +31,16 @@
 <body>
 
   <div id="app">
-
-    <!-- Splash / Loading -->
-    <div id="splash" class="splash-screen">
-      <div class="splash-content">
-        <div class="splash-logo">
-          <svg width="64" height="64" viewBox="0 0 64 64" fill="none">
-            <rect width="64" height="64" rx="16" fill="url(#splashGrad)" />
-            <path d="M20 44V28l12-8 12 8v16" stroke="#fff" stroke-width="3" stroke-linecap="round"
-              stroke-linejoin="round" />
-            <path d="M28 44v-8h8v8" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
-            <defs>
-              <linearGradient id="splashGrad" x1="0" y1="0" x2="64" y2="64">
-                <stop offset="0%" stop-color="#6c63ff" />
-                <stop offset="100%" stop-color="#4ecdc4" />
-              </linearGradient>
-            </defs>
-          </svg>
-        </div>
-        <h1 class="splash-title">AppGastos</h1>
-        <div class="splash-spinner">
-          <div class="spinner"></div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Config Screen (first run) -->
-    <div id="config-screen" class="config-screen hidden">
-      <div class="config-content">
-        <div class="config-header">
-          <svg width="48" height="48" viewBox="0 0 64 64" fill="none">
-            <rect width="64" height="64" rx="16" fill="url(#cfgGrad)" />
-            <path d="M20 44V28l12-8 12 8v16" stroke="#fff" stroke-width="3" stroke-linecap="round"
-              stroke-linejoin="round" />
-            <path d="M28 44v-8h8v8" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
-            <defs>
-              <linearGradient id="cfgGrad" x1="0" y1="0" x2="64" y2="64">
-                <stop offset="0%" stop-color="#6c63ff" />
-                <stop offset="100%" stop-color="#4ecdc4" />
-              </linearGradient>
-            </defs>
-          </svg>
-          <h1>AppGastos</h1>
-          <p>Configuración inicial</p>
-        </div>
-      </div>
-    </div>
-
-    <!-- Main App Layout -->
-    <div id="main-layout" class="main-layout hidden">
-
+    <!-- Main Layout -->
+    <div id="main-layout" class="main-layout">
+      
       <!-- Desktop Sidebar -->
       <aside id="sidebar" class="sidebar">
         <div class="sidebar-header">
           <div class="sidebar-logo">
             <svg width="32" height="32" viewBox="0 0 64 64" fill="none">
               <rect width="64" height="64" rx="12" fill="url(#sideGrad)" />
-              <path d="M20 44V28l12-8 12 8v16" stroke="#fff" stroke-width="3" stroke-linecap="round"
-                stroke-linejoin="round" />
+              <path d="M20 44V28l12-8 12 8v16" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
               <path d="M28 44v-8h8v8" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
               <defs>
                 <linearGradient id="sideGrad" x1="0" y1="0" x2="64" y2="64">
@@ -102,14 +54,18 @@
         </div>
 
         <nav class="sidebar-nav">
-          <a href="#dashboard" class="nav-item" data-route="dashboard">
+          <a href="#dashboard" class="nav-item active" data-route="dashboard">
             <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <rect x="3" y="3" width="7" height="7" rx="1" />
-              <rect x="14" y="3" width="7" height="7" rx="1" />
-              <rect x="3" y="14" width="7" height="7" rx="1" />
-              <rect x="14" y="14" width="7" height="7" rx="1" />
+              <rect x="3" y="3" width="7" height="7" rx="1" /><rect x="14" y="3" width="7" height="7" rx="1" />
+              <rect x="3" y="14" width="7" height="7" rx="1" /><rect x="14" y="14" width="7" height="7" rx="1" />
             </svg>
             <span>Dashboard</span>
+          </a>
+          <a href="#ingresos" class="nav-item" data-route="ingresos">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="12" y1="19" x2="12" y2="5" /><polyline points="5 12 12 5 19 12" />
+            </svg>
+            <span>Ingresos</span>
           </a>
           <a href="#gastos" class="nav-item" data-route="gastos">
             <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -117,17 +73,9 @@
             </svg>
             <span>Gastos</span>
           </a>
-          <a href="#ingresos" class="nav-item" data-route="ingresos">
-            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <line x1="12" y1="19" x2="12" y2="5" />
-              <polyline points="5 12 12 5 19 12" />
-            </svg>
-            <span>Ingresos</span>
-          </a>
           <a href="#cuentas" class="nav-item" data-route="cuentas">
             <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <rect x="2" y="5" width="20" height="14" rx="2" />
-              <line x1="2" y1="10" x2="22" y2="10" />
+              <rect x="2" y="5" width="20" height="14" rx="2" /><line x1="2" y1="10" x2="22" y2="10" />
             </svg>
             <span>Cuentas</span>
           </a>
@@ -135,35 +83,33 @@
           <a href="#admin" class="nav-item" data-route="admin">
             <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <circle cx="12" cy="12" r="3" />
-              <path
-                d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z" />
+              <path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z" />
             </svg>
-            <span>Administración</span>
+            <span>Admin</span>
           </a>
         </nav>
 
+        <div id="auth-container" style="padding: 20px; border-top: 1px solid var(--glass-border); margin-top: auto;"></div>
+
         <div class="sidebar-footer">
-          <p>2026 - Todos los derechos reservados</p>
-          <p>WatermelonStudio</p>
-          <p>v1.0</p>
+          <p>2026 - AppGastos</p>
+          <p>WatermelonStudio v2.0</p>
         </div>
       </aside>
 
-      <!-- Main Content Area -->
+      <!-- Content Area -->
       <div class="content-wrapper">
         <header id="top-header" class="top-header">
           <div class="header-left">
             <button id="mobile-menu-btn" class="mobile-menu-btn">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="22" height="22">
-                <line x1="3" y1="6" x2="21" y2="6" />
-                <line x1="3" y1="12" x2="21" y2="12" />
-                <line x1="3" y1="18" x2="21" y2="18" />
+                <line x1="3" y1="6" x2="21" y2="6" /><line x1="3" y1="12" x2="21" y2="12" /><line x1="3" y1="18" x2="21" y2="18" />
               </svg>
             </button>
             <h1 id="page-title" class="page-title">Dashboard</h1>
           </div>
           <div class="header-right">
-            <div id="sync-status" class="sync-status" title="Estado de sincronización">
+            <div id="sync-status" class="sync-status">
               <div class="sync-dot sync-ok"></div>
             </div>
           </div>
@@ -178,12 +124,10 @@
       <nav id="bottom-nav" class="bottom-nav">
         <a href="#dashboard" class="bottom-nav-item" data-route="dashboard">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <rect x="3" y="3" width="7" height="7" rx="1" />
-            <rect x="14" y="3" width="7" height="7" rx="1" />
-            <rect x="3" y="14" width="7" height="7" rx="1" />
-            <rect x="14" y="14" width="7" height="7" rx="1" />
+            <rect x="3" y="3" width="7" height="7" rx="1" /><rect x="14" y="3" width="7" height="7" rx="1" />
+            <rect x="3" y="14" width="7" height="7" rx="1" /><rect x="14" y="14" width="7" height="7" rx="1" />
           </svg>
-          <span>Dashboard</span>
+          <span>Inicio</span>
         </a>
         <a href="#gastos" class="bottom-nav-item" data-route="gastos">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -193,39 +137,27 @@
         </a>
         <a href="#ingresos" class="bottom-nav-item" data-route="ingresos">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <line x1="12" y1="19" x2="12" y2="5" />
-            <polyline points="5 12 12 5 19 12" />
+            <line x1="12" y1="19" x2="12" y2="5" /><polyline points="5 12 12 5 19 12" />
           </svg>
           <span>Ingresos</span>
         </a>
-        <a href="#cuentas" class="bottom-nav-item" data-route="cuentas">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <rect x="2" y="5" width="20" height="14" rx="2" />
-            <line x1="2" y1="10" x2="22" y2="10" />
-          </svg>
-          <span>Cuentas</span>
-        </a>
         <a href="#admin" class="bottom-nav-item" data-route="admin">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <circle cx="12" cy="12" r="3" />
-            <path
-              d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z" />
+            <circle cx="12" cy="12" r="3" /><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z" />
           </svg>
           <span>Admin</span>
         </a>
       </nav>
+    </div>
 
-    </div><!-- /main-layout -->
-
-    <!-- Global Modal -->
-    <div id="modal-overlay" class="modal-overlay hidden" role="dialog" aria-modal="true">
+    <!-- Global Modal (IMPORTANT: Keep IDs correct) -->
+    <div id="modal-overlay" class="modal-overlay hidden">
       <div id="modal-container" class="modal-container">
         <div class="modal-header">
           <h2 id="modal-title" class="modal-title"></h2>
-          <button id="modal-close" class="modal-close" aria-label="Cerrar">
+          <button id="modal-close" class="modal-close">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20">
-              <line x1="18" y1="6" x2="6" y2="18" />
-              <line x1="6" y1="6" x2="18" y2="18" />
+              <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
             </svg>
           </button>
         </div>
@@ -236,28 +168,15 @@
     <!-- Global Loading Overlay -->
     <div id="loading-overlay" class="loading-overlay hidden">
       <div class="spinner"></div>
-      <div id="loading-text" class="loading-text">Guardando...</div>
+      <div id="loading-text" class="loading-text">Cargando...</div>
     </div>
 
     <!-- Toast Notifications -->
-    <div id="toast-container" class="toast-container" aria-live="polite"></div>
+    <div id="toast-container" class="toast-container"></div>
+  </div>
 
-  </div><!-- /app -->
-
-  <!-- Mobile Sidebar Overlay -->
   <div id="sidebar-overlay" class="sidebar-overlay hidden"></div>
 
   <script type="module" src="/js/app.js"></script>
-
-  <script>
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
-        navigator.serviceWorker.register('service-worker.js')
-          .then(reg => console.log('SW registrado:', reg.scope))
-          .catch(err => console.warn('SW error:', err));
-      });
-    }
-  </script>
 </body>
-
 </html>

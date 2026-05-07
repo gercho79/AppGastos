@@ -8,9 +8,9 @@ export const DashboardView = {
     const now = new Date();
     const currentMonth = now.getMonth();
     const currentYear = now.getFullYear();
-    
+
     const gastosByCategory = store.getGastosByCategory(currentMonth, currentYear);
-    
+
     container.innerHTML = `
       <div class="dashboard-header">
         <div class="date-display">${getMonthName(currentMonth)} ${currentYear}</div>
@@ -29,9 +29,9 @@ export const DashboardView = {
 
       <h3 style="margin: 32px 0 16px;">Mis Cuentas</h3>
       <div class="dashboard-grid" id="cuentas-grid">
-        ${Object.entries(balances).map(([name, data]) => `
+        ${Object.values(balances).map(data => `
           <div class="stat-card">
-            <div class="stat-label">${name}</div>
+            <div class="stat-label">${data.displayName}</div>
             <div class="stat-value ${data.saldo < 0 ? 'negative' : ''}">
               ${formatCurrency(data.saldo, data.moneda)}
             </div>
@@ -52,7 +52,6 @@ export const DashboardView = {
   updateTotals(balances) {
     let totalArs = 0;
     let totalUsd = 0;
-    
     Object.values(balances).forEach(b => {
       if (b.moneda === 'ARS') totalArs += b.saldo;
       if (b.moneda === 'USD') totalUsd += b.saldo;
