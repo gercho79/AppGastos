@@ -87,6 +87,32 @@ class App {
       overlay.classList.add('hidden');
     });
 
+    // Desktop Sidebar Collapse
+    const sidebar = document.getElementById('sidebar');
+    if (localStorage.getItem('sidebar-collapsed') === 'true') {
+      sidebar.classList.add('collapsed');
+    }
+    document.getElementById('sidebar-collapse-btn').addEventListener('click', () => {
+      sidebar.classList.toggle('collapsed');
+      localStorage.setItem('sidebar-collapsed', sidebar.classList.contains('collapsed'));
+    });
+
+    // Toggle Amounts Visibility
+    const app = document.getElementById('app');
+    const eyeOpen = document.getElementById('eye-open');
+    const eyeClosed = document.getElementById('eye-closed');
+    if (localStorage.getItem('amounts-hidden') === 'true') {
+      app.classList.add('amounts-hidden');
+      eyeOpen.style.display = 'none';
+      eyeClosed.style.display = 'block';
+    }
+    document.getElementById('toggle-amounts-btn').addEventListener('click', () => {
+      const hidden = app.classList.toggle('amounts-hidden');
+      eyeOpen.style.display = hidden ? 'none' : 'block';
+      eyeClosed.style.display = hidden ? 'block' : 'none';
+      localStorage.setItem('amounts-hidden', hidden);
+    });
+
     // Modal Close
     document.getElementById('modal-close').addEventListener('click', () => Modal.hide());
     document.getElementById('modal-overlay').addEventListener('click', (e) => {

@@ -48,7 +48,16 @@ class AppStore {
     this.state.cuentas.forEach(c => {
       const name = (c.nombre || '').toString().trim().toUpperCase();
       if (!name) return;
-      balances[name] = { displayName: c.nombre, moneda: (c.moneda || 'ARS').toUpperCase(), saldo: this._n(c.saldoinicial) };
+      balances[name] = {
+        displayName: c.nombre,
+        moneda: (c.moneda || 'ARS').toUpperCase(),
+        saldoInicial: this._n(c.saldoinicial),
+        totalIngresos: 0,
+        totalGastos: 0,
+        totalTransIn: 0,
+        totalTransOut: 0,
+        saldo: this._n(c.saldoinicial)
+      };
       if (c.id) idToName[c.id.toString()] = name;
     });
 
@@ -60,22 +69,35 @@ class AppStore {
 
     this.state.ingresos.forEach(i => {
       const acc = getName(i.cuentadestino);
-      if (balances[acc]) balances[acc].saldo += this._n(i.importe);
+      if (balances[acc]) {
+        const monto = this._n(i.importe);
+        balances[acc].totalIngresos += monto;
+        balances[acc].saldo += monto;
+      }
     });
 
     this.state.gastos.forEach(g => {
       const acc = getName(g.cuentaorigen);
-      if (balances[acc]) balances[acc].saldo -= this._n(g.importe);
+      if (balances[acc]) {
+        const monto = this._n(g.importe);
+        balances[acc].totalGastos += monto;
+        balances[acc].saldo -= monto;
+      }
     });
 
     this.state.transferencias.forEach(t => {
       const ori = getName(t.cuentaorigen);
       const des = getName(t.cuentadestino);
       const imp = this._n(t.importe);
-      if (balances[ori]) balances[ori].saldo -= imp;
+      if (balances[ori]) {
+        balances[ori].totalTransOut += imp;
+        balances[ori].saldo -= imp;
+      }
       if (balances[des]) {
         const factor = this._n(t.tipocambio) || 1;
-        balances[des].saldo += t.tipocambio ? (imp / factor) : imp;
+        const received = t.tipocambio ? (imp / factor) : imp;
+        balances[des].totalTransIn += received;
+        balances[des].saldo += received;
       }
     });
 

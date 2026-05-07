@@ -343,6 +343,60 @@ body {
   margin-bottom: 4px;
 }
 
+/* Sidebar Collapse */
+.sidebar-collapse-btn {
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 6px;
+  transition: var(--transition);
+  display: flex;
+  align-items: center;
+}
+.sidebar-collapse-btn:hover {
+  background: var(--glass);
+  color: var(--text-primary);
+}
+
+.sidebar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* Collapsed State */
+.sidebar.collapsed {
+  width: 72px;
+}
+.sidebar.collapsed .sidebar-title,
+.sidebar.collapsed .nav-item span,
+.sidebar.collapsed .sidebar-footer,
+.sidebar.collapsed #auth-container {
+  display: none;
+}
+.sidebar.collapsed .sidebar-header {
+  justify-content: center;
+  padding: 24px 12px;
+}
+.sidebar.collapsed .sidebar-logo {
+  gap: 0;
+}
+.sidebar.collapsed .sidebar-collapse-btn svg {
+  transform: rotate(180deg);
+}
+.sidebar.collapsed .sidebar-nav {
+  padding: 16px 8px;
+}
+.sidebar.collapsed .nav-item {
+  justify-content: center;
+  padding: 12px;
+}
+.sidebar.collapsed .nav-divider {
+  margin: 12px 4px;
+}
+
 /* Content Area */
 .content-wrapper {
   flex: 1;
@@ -430,6 +484,31 @@ body {
 .sync-status {
   width: 12px;
   height: 12px;
+}
+
+/* Toggle Amounts */
+.toggle-amounts-btn {
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  transition: var(--transition);
+}
+.toggle-amounts-btn:hover {
+  background: var(--glass);
+  color: var(--text-primary);
+}
+
+/* Hidden amounts mode */
+.amounts-hidden .stat-value,
+.amounts-hidden .item-value {
+  filter: blur(8px);
+  user-select: none;
+  pointer-events: none;
 }
 
 .sync-dot {

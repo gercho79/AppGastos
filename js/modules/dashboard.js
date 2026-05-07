@@ -8,7 +8,6 @@ export const DashboardView = {
     const now = new Date();
     const currentMonth = now.getMonth();
     const currentYear = now.getFullYear();
-
     const gastosByCategory = store.getGastosByCategory();
 
     container.innerHTML = `
@@ -16,7 +15,8 @@ export const DashboardView = {
         <div class="date-display">${getMonthName(currentMonth)} ${currentYear}</div>
       </div>
 
-      <div class="dashboard-grid">
+      <!-- Resumen General -->
+      <div class="dashboard-grid" style="margin-bottom: 32px;">
         <div class="stat-card main-balance">
           <div class="stat-label">Total Disponible (ARS)</div>
           <div class="stat-value" id="total-ars">...</div>
@@ -27,19 +27,40 @@ export const DashboardView = {
         </div>
       </div>
 
-      <h3 style="margin: 32px 0 16px;">Mis Cuentas</h3>
-      <div class="dashboard-grid" id="cuentas-grid">
+      <!-- Detalle por Cuenta -->
+      <h3 style="margin-bottom: 16px;">Mis Cuentas</h3>
+      <div class="dashboard-grid" style="margin-bottom: 32px;">
         ${Object.values(balances).map(data => `
-          <div class="stat-card">
-            <div class="stat-label">${data.displayName}</div>
-            <div class="stat-value ${data.saldo < 0 ? 'negative' : ''}">
-              ${formatCurrency(data.saldo, data.moneda)}
+          <div class="stat-card" style="padding: 20px;">
+            <div class="flex-between" style="margin-bottom: 16px;">
+              <div>
+                <div class="stat-label" style="margin-bottom: 2px;">${data.displayName}</div>
+                <div class="stat-value ${data.saldo < 0 ? 'negative' : ''}" style="font-size: 1.5rem;">
+                  ${formatCurrency(data.saldo, data.moneda)}
+                </div>
+              </div>
+              <span style="font-size: 0.7rem; padding: 3px 8px; border-radius: 20px; background: var(--glass); color: var(--text-secondary);">${data.moneda}</span>
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding-top: 12px; border-top: 1px solid var(--glass-border);">
+              <div>
+                <div style="font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 4px;">Ingresos</div>
+                <div style="font-weight: 700; color: var(--success); font-size: 0.95rem;">
+                  +${formatCurrency(data.totalIngresos, data.moneda)}
+                </div>
+              </div>
+              <div>
+                <div style="font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 4px;">Gastos</div>
+                <div style="font-weight: 700; color: var(--danger); font-size: 0.95rem;">
+                  -${formatCurrency(data.totalGastos, data.moneda)}
+                </div>
+              </div>
             </div>
           </div>
         `).join('')}
       </div>
 
-      <h3 style="margin: 32px 0 16px;">Gastos por Categoría</h3>
+      <!-- Gastos por Categoría -->
+      <h3 style="margin-bottom: 16px;">Gastos por Categoría</h3>
       <div class="stat-card">
         <canvas id="category-chart" style="max-height: 300px;"></canvas>
       </div>
@@ -80,7 +101,7 @@ export const DashboardView = {
         labels: labels,
         datasets: [{
           data: values,
-          backgroundColor: ['#6c63ff', '#4ecdc4', '#ffb142', '#ff5252', '#00d2ff', '#9c27b0'],
+          backgroundColor: ['#6c63ff', '#4ecdc4', '#ffb142', '#ff5252', '#00d2ff', '#9c27b0', '#ff9800', '#e91e63'],
           borderWidth: 0
         }]
       },
