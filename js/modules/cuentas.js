@@ -16,7 +16,7 @@ export const CuentasView = {
 
       <div class="list-container">
         ${store.state.cuentas.map(c => {
-          const balance = balances[c.nombre]?.saldo || 0;
+          const balance = balances[c.nombre?.toUpperCase()]?.saldo || 0;
           return `
             <div class="item-card">
               <div class="item-info">

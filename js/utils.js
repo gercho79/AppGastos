@@ -7,7 +7,9 @@ export const formatCurrency = (amount, currency = 'ARS') => {
 };
 
 export const formatDate = (dateString) => {
+  if (!dateString) return '---';
   const date = new Date(dateString);
+  if (isNaN(date.getTime())) return dateString;
   return new Intl.DateTimeFormat('es-AR', {
     day: '2-digit',
     month: '2-digit',

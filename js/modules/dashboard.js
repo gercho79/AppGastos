@@ -9,7 +9,7 @@ export const DashboardView = {
     const currentMonth = now.getMonth();
     const currentYear = now.getFullYear();
 
-    const gastosByCategory = store.getGastosByCategory(currentMonth, currentYear);
+    const gastosByCategory = store.getGastosByCategory();
 
     container.innerHTML = `
       <div class="dashboard-header">

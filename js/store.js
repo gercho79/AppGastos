@@ -5,140 +5,90 @@ class AppStore {
   constructor() {
     this.state = {
       periodos: [], cuentas: [], tiposIngreso: [], formasPago: [],
-      categorias: [], gastos: [], ingresos: [], transferencias: [],
-      servicios: [],
+      categorias: [], gastos: [], ingresos: [], transferencias: [], servicios: [],
       isLoading: false, initialized: false
     };
     this.listeners = [];
   }
 
-  subscribe(listener) {
-    this.listeners.push(listener);
-    return () => this.listeners = this.listeners.filter(l => l !== listener);
-  }
-
-  notify() { this.listeners.forEach(listener => listener(this.state)); }
+  subscribe(l) { this.listeners.push(l); return () => this.listeners = this.listeners.filter(x => x !== l); }
+  notify() { this.listeners.forEach(l => l(this.state)); }
 
   async init() {
     if (this.state.initialized) return;
     await this.refreshAll();
     this.state.initialized = true;
-    this.notify();
   }
 
   async refreshAll() {
     this.state.isLoading = true;
     this.notify();
     try {
-      const response = await api.fetch('getall');
-      if (response.status === 'success') {
-        this.state = { ...this.state, ...response.data, isLoading: false };
-        console.log('--- DEBUG DE VINCULACIÓN ---');
-        console.log('Cuentas encontradas:', this.state.cuentas.length);
-        console.log('Servicios encontrados:', this.state.servicios.length);
+      const res = await api.fetch('getall');
+      if (res.status === 'success') {
+        this.state = { ...this.state, ...res.data, isLoading: false };
       }
-    } catch (error) {
+    } catch (e) {
       this.state.isLoading = false;
     }
     this.notify();
   }
 
-  _parseNumber(val) {
-    if (val === undefined || val === null || val === '') return 0;
-    let s = val.toString().trim()
-      .replace(/[$\s]/g, '')
-      .replace(/\./g, '')
-      .replace(/,/g, '.');
+  _n(val) {
+    if (!val) return 0;
+    const s = val.toString().replace(/[$\s]/g, '').replace(/\./g, '').replace(/,/g, '.');
     const n = parseFloat(s);
     return isNaN(n) ? 0 : n;
   }
 
   getBalances() {
     const balances = {};
-    const idToName = {}; // Mapa para vincular IDs con Nombres
+    const idToName = {};
 
-    // 1. Inicializar Cuentas
     this.state.cuentas.forEach(c => {
       const name = (c.nombre || '').toString().trim().toUpperCase();
-      const id = (c.id || '').toString().trim();
       if (!name) return;
-      
-      balances[name] = {
-        displayName: c.nombre,
-        moneda: (c.moneda || 'ARS').toUpperCase(),
-        saldo: this._parseNumber(c.saldoInicial)
-      };
-      if (id) idToName[id] = name;
+      balances[name] = { displayName: c.nombre, moneda: (c.moneda || 'ARS').toUpperCase(), saldo: this._n(c.saldoinicial) };
+      if (c.id) idToName[c.id.toString()] = name;
     });
 
-    // Función auxiliar para obtener el nombre de cuenta desde nombre o ID
-    const getAccName = (val) => {
-      if (!val) return '';
-      const v = val.toString().trim();
-      const vUpper = v.toUpperCase();
-      if (balances[vUpper]) return vUpper; // Es un nombre
-      if (idToName[v]) return idToName[v]; // Es un ID
-      return '';
+    const getName = (v) => {
+      if (!v) return '';
+      const s = v.toString().trim();
+      return balances[s.toUpperCase()] ? s.toUpperCase() : (idToName[s] || '');
     };
 
-    // 2. Ingresos
     this.state.ingresos.forEach(i => {
-      const accVal = i.cuentaDestino || i.cuentadestino || i.cuenta;
-      const accName = getAccName(accVal);
-      const imp = this._parseNumber(i.importe);
-      if (balances[accName]) {
-        balances[accName].saldo += imp;
-        console.log(`+ Ingreso en ${accName}: ${imp}`);
-      }
+      const acc = getName(i.cuentadestino);
+      if (balances[acc]) balances[acc].saldo += this._n(i.importe);
     });
 
-    // 3. Gastos
     this.state.gastos.forEach(g => {
-      const accVal = g.cuentaOrigen || g.cuentaorigen || g.cuenta;
-      const accName = getAccName(accVal);
-      const imp = this._parseNumber(g.importe);
-      if (balances[accName]) {
-        balances[accName].saldo -= imp;
-        console.log(`- Gasto en ${accName}: ${imp}`);
-      }
+      const acc = getName(g.cuentaorigen);
+      if (balances[acc]) balances[acc].saldo -= this._n(g.importe);
     });
 
-    // 4. Transferencias
     this.state.transferencias.forEach(t => {
-      const oriName = getAccName(t.cuentaOrigen || t.cuentaorigen);
-      const desName = getAccName(t.cuentaDestino || t.cuentadestino);
-      const imp = this._parseNumber(t.importe);
-
-      if (balances[oriName]) balances[oriName].saldo -= imp;
-      if (balances[desName]) {
-        const factor = this._parseNumber(t.tipoCambio) || 1;
-        const add = t.tipoCambio ? (imp / factor) : imp;
-        balances[desName].saldo += add;
+      const ori = getName(t.cuentaorigen);
+      const des = getName(t.cuentadestino);
+      const imp = this._n(t.importe);
+      if (balances[ori]) balances[ori].saldo -= imp;
+      if (balances[des]) {
+        const factor = this._n(t.tipocambio) || 1;
+        balances[des].saldo += t.tipocambio ? (imp / factor) : imp;
       }
     });
 
     return balances;
   }
 
-  getGastosByCategory(month, year) {
-    const summary = {};
-    this.state.gastos.forEach(g => {
-      const d = new Date(g.fecha);
-      if (d.getMonth() === month && d.getFullYear() === year) {
-        const cat = g.categoria || 'Otros';
-        summary[cat] = (summary[cat] || 0) + this._parseNumber(g.importe);
-      }
-    });
-    return summary;
-  }
-
-  async _performAction(action, body, successMsg) {
+  async _act(action, body, msg) {
     toggleLoading(true);
     try {
       const res = await api.post(action, { id: Date.now(), ...body });
-      if (res.status === 'success') {
+      if (res && res.status === 'success') {
         await this.refreshAll();
-        showToast(successMsg);
+        showToast(msg);
         return true;
       }
     } catch (e) {
@@ -149,10 +99,28 @@ class AppStore {
     return false;
   }
 
-  async addGasto(g) { return this._performAction('addGasto', g, 'Gasto guardado'); }
-  async addIngreso(i) { return this._performAction('addIngreso', i, 'Ingreso guardado'); }
-  async addTransferencia(t) { return this._performAction('addTransferencia', t, 'Transferencia lista'); }
-  async addPeriodo(p) { return this._performAction('addPeriodo', p, 'Ejercicio abierto'); }
+  async addGasto(g) { return this._act('addGasto', g, 'Gasto guardado'); }
+  async addIngreso(i) { return this._act('addIngreso', i, 'Ingreso guardado'); }
+  async addTransferencia(t) { return this._act('addTransferencia', t, 'Transferencia lista'); }
+  async addCuenta(c) { return this._act('addCuenta', c, 'Cuenta creada'); }
+  async addTipoIngreso(n) { return this._act('addTipoIngreso', { nombre: n }, 'Agregado'); }
+  async deleteTipoIngreso(id) { return this._act('deleteTipoIngreso', { id }, 'Eliminado'); }
+  async addCategoria(c) { return this._act('addCategoria', c, 'Categoría agregada'); }
+  async deleteCategoria(id) { return this._act('deleteCategoria', { id }, 'Eliminado'); }
+  async addFormaPago(n) { return this._act('addFormaPago', { nombre: n }, 'Agregado'); }
+  async deleteFormaPago(id) { return this._act('deleteFormaPago', { id }, 'Eliminado'); }
+  async addServicio(n) { return this._act('addServicio', { nombre: n, activo: 'TRUE' }, 'Servicio guardado'); }
+  async deleteServicio(id) { return this._act('deleteServicio', { id }, 'Eliminado'); }
+  async addPeriodo(p) { return this._act('addPeriodo', p, 'Ejercicio abierto'); }
+
+  getGastosByCategory() {
+    const categories = {};
+    this.state.gastos.forEach(g => {
+      const cat = g.categoria || 'Sin Categoría';
+      categories[cat] = (categories[cat] || 0) + this._n(g.importe);
+    });
+    return categories;
+  }
 }
 
 export const store = new AppStore();

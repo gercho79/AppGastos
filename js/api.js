@@ -18,125 +18,134 @@ class SheetsAPI {
     const res = await window.fetch(url, { ...options, headers });
     if (!res.ok) {
       const err = await res.json();
-      console.error('API Error Details:', err);
-      throw new Error(err.error?.message || 'Error en la petición');
+      throw new Error(err.error?.message || 'Error en Google Sheets');
     }
     return res.json();
   }
 
+  // ────── LECTURA ──────
+
   async fetch(action) {
     if (action === 'getall') {
       try {
-        const metaData = await this._request(`${this.baseUrl}?fields=sheets.properties.title`);
-        const existingSheets = metaData.sheets.map(s => s.properties.title);
-
-        const requiredSheets = ['Cuentas', 'Gastos', 'Ingresos', 'Transferencias', 'Periodos', 'TiposIngreso', 'Categorias', 'FormasPago', 'Servicios'];
-        const sheetsToFetch = requiredSheets.filter(s => existingSheets.includes(s));
+        const meta = await this._request(`${this.baseUrl}?fields=sheets.properties.title`);
+        const existing = meta.sheets.map(s => s.properties.title);
+        const required = ['Cuentas', 'Gastos', 'Ingresos', 'Transferencias', 'Periodos', 'TiposIngreso', 'Categorias', 'FormasPago', 'Servicios'];
+        const active = required.filter(s => existing.includes(s));
         
-        const query = sheetsToFetch.map(r => `ranges=${encodeURIComponent(r)}!A:Z`).join('&');
+        const query = active.map(r => `ranges=${encodeURIComponent(r)}!A:Z`).join('&');
         const data = await this._request(`${this.baseUrl}/values:batchGet?${query}`);
         
         const result = {};
-        requiredSheets.forEach(s => result[this._getStateKey(s)] = []);
-
+        required.forEach(s => result[this._stateKey(s)] = []);
         if (data.valueRanges) {
           data.valueRanges.forEach((range, i) => {
-            const sheetName = sheetsToFetch[i];
-            result[this._getStateKey(sheetName)] = this._mapValuesToObjects(range.values);
+            result[this._stateKey(active[i])] = this._parseRows(range.values);
           });
         }
         return { status: 'success', data: result };
       } catch (e) {
+        console.error('Error cargando datos:', e);
         return { status: 'error', message: e.message };
       }
     }
   }
 
+  // ────── ESCRITURA ──────
+
   async post(action, body) {
-    const actionToSheet = {
+    const sheetMap = {
       'addGasto': 'Gastos', 'addIngreso': 'Ingresos', 'addTransferencia': 'Transferencias',
       'addCuenta': 'Cuentas', 'addTipoIngreso': 'TiposIngreso', 'addCategoria': 'Categorias', 
       'addFormaPago': 'FormasPago', 'addServicio': 'Servicios', 'addPeriodo': 'Periodos'
     };
 
     if (action.startsWith('add')) {
-      return this._appendRow(actionToSheet[action], body);
+      return this._appendRow(sheetMap[action], body);
     }
     
     if (action.startsWith('delete')) {
       const entity = action.replace('delete', '');
-      const sheetMap = { 'TipoIngreso': 'TiposIngreso', 'Categoria': 'Categorias', 'FormaPago': 'FormasPago', 'Servicio': 'Servicios' };
-      const sheetName = sheetMap[entity] || (entity.charAt(0).toUpperCase() + entity.slice(1) + (entity.endsWith('s') ? '' : 's'));
-      return this._deleteRowById(sheetName, body.id);
+      const delMap = { 'TipoIngreso': 'TiposIngreso', 'Categoria': 'Categorias', 'FormaPago': 'FormasPago', 'Servicio': 'Servicios' };
+      return this._deleteRow(delMap[entity] || entity, body.id);
     }
-    
-    return { status: 'error', message: 'Acción no soportada' };
   }
 
-  _getStateKey(sheetName) {
-    const map = {
-      'Cuentas': 'cuentas', 'Gastos': 'gastos', 'Ingresos': 'ingresos', 'Transferencias': 'transferencias',
-      'Periodos': 'periodos', 'TiposIngreso': 'tiposIngreso', 'Categorias': 'categorias', 'FormasPago': 'formasPago',
-      'Servicios': 'servicios'
-    };
+  // ────── HELPERS INTERNOS ──────
+
+  _stateKey(sheetName) {
+    const map = { 'TiposIngreso': 'tiposIngreso', 'FormasPago': 'formasPago', 'Transferencias': 'transferencias' };
     return map[sheetName] || sheetName.toLowerCase();
   }
 
-  _mapValuesToObjects(values) {
+  _parseRows(values) {
     if (!values || values.length < 1) return [];
     const rawHeaders = values[0];
-    const headers = rawHeaders.map(h => {
-      if (!h) return '';
-      let normalized = h.toString().trim().toLowerCase().replace(/\s+/g, ' ').split(' ').map((word, index) => index === 0 ? word : word.charAt(0).toUpperCase() + word.slice(1)).join('');
-      const specialMap = { 'año': 'año', 'anio': 'anio', 'saldoinicial': 'saldoInicial', 'cuentaorigen': 'cuentaOrigen', 'cuentadestino': 'cuentaDestino', 'tipoingreso': 'tipoIngreso', 'formapago': 'formaPago', 'esservicio': 'esServicio' };
-      return specialMap[normalized.toLowerCase()] || normalized;
-    });
+    const headers = rawHeaders.map(h => (h || '').toString().trim().toLowerCase().replace(/\s+/g, ''));
     return values.slice(1).map(row => {
       const obj = {};
-      headers.forEach((h, i) => { if (h) obj[h] = row[i] !== undefined ? row[i] : ''; });
+      headers.forEach((h, i) => {
+        if (h) obj[h] = (row && row[i] !== undefined) ? row[i] : '';
+      });
       return obj;
     });
   }
 
   async _appendRow(sheetName, data) {
-    // 1. Obtener cabeceras reales
-    const encodedSheet = encodeURIComponent(`'${sheetName}'`);
-    const headersData = await this._request(`${this.baseUrl}/values/${encodedSheet}!1:1`);
-    if (!headersData.values || !headersData.values[0]) throw new Error(`Hoja ${sheetName} no tiene encabezados`);
+    const enc = encodeURIComponent(`'${sheetName}'`);
     
-    const headers = headersData.values[0];
+    // PASO 1: Contar filas existentes leyendo SOLO la columna A
+    const colA = await this._request(`${this.baseUrl}/values/${enc}!A:A`);
+    const rowCount = (colA.values || []).length;
+    const nextRow = rowCount + 1;
+    
+    // PASO 2: Leer la fila 1 COMPLETA para obtener todos los encabezados
+    const headerRes = await this._request(`${this.baseUrl}/values/${enc}!1:1`);
+    const headers = headerRes.values?.[0];
+    if (!headers || headers.length === 0) {
+      throw new Error(`La hoja "${sheetName}" no tiene encabezados en la fila 1`);
+    }
+
+    // PASO 3: Armar la fila de datos alineada con los encabezados
     const row = headers.map(h => {
-      const normH = h.toString().toLowerCase().replace(/\s+/g, '');
-      const key = Object.keys(data).find(k => k.toLowerCase().replace(/\s+/g, '') === normH);
-      return key ? data[key] : '';
+      const normalizedHeader = h.toString().trim().toLowerCase().replace(/\s+/g, '');
+      const matchingKey = Object.keys(data).find(k => 
+        k.toLowerCase().replace(/\s+/g, '') === normalizedHeader
+      );
+      return matchingKey !== undefined ? data[matchingKey] : '';
     });
 
-    // 2. Append
-    await this._request(`${this.baseUrl}/values/${encodedSheet}!A1:append?valueInputOption=USER_ENTERED`, {
-      method: 'POST',
+    // PASO 4: Escribir en la fila exacta (rango explícito A{n}:Z{n})
+    const lastCol = String.fromCharCode(64 + headers.length); // A=65, B=66...
+    const range = `${enc}!A${nextRow}:${lastCol}${nextRow}`;
+    
+    await this._request(`${this.baseUrl}/values/${range}?valueInputOption=USER_ENTERED`, {
+      method: 'PUT',
       body: JSON.stringify({ values: [row] })
     });
+    
     return { status: 'success' };
   }
 
-  async _deleteRowById(sheetName, id) {
-    const encodedSheet = encodeURIComponent(`'${sheetName}'`);
-    const data = await this._request(`${this.baseUrl}/values/${encodedSheet}!A:A`);
-    if (!data.values) return { status: 'error' };
+  async _deleteRow(sheetName, id) {
+    const enc = encodeURIComponent(`'${sheetName}'`);
+    const colA = await this._request(`${this.baseUrl}/values/${enc}!A:A`);
+    if (!colA.values) return { status: 'error', message: 'Hoja vacía' };
     
-    const rowIndex = data.values.findIndex(row => row[0].toString() === id.toString());
-    if (rowIndex === -1) return { status: 'error' };
+    const rowIndex = colA.values.findIndex(r => r[0]?.toString() === id.toString());
+    if (rowIndex === -1) throw new Error('Registro no encontrado');
 
     const meta = await this._request(`${this.baseUrl}?fields=sheets.properties`);
-    const sheetId = meta.sheets.find(s => s.properties.title === sheetName).properties.sheetId;
+    const sheet = meta.sheets.find(s => s.properties.title === sheetName);
+    if (!sheet) throw new Error(`Hoja "${sheetName}" no existe`);
 
     await this._request(`${this.baseUrl}:batchUpdate`, {
       method: 'POST',
       body: JSON.stringify({
-        requests: [{
-          deleteDimension: {
-            range: { sheetId, dimension: 'ROWS', startIndex: rowIndex, endIndex: rowIndex + 1 }
-          }
+        requests: [{ 
+          deleteDimension: { 
+            range: { sheetId: sheet.properties.sheetId, dimension: 'ROWS', startIndex: rowIndex, endIndex: rowIndex + 1 } 
+          } 
         }]
       })
     });
