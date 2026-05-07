@@ -6,6 +6,7 @@ class AppStore {
     this.state = {
       periodos: [], cuentas: [], tiposIngreso: [], formasPago: [],
       categorias: [], gastos: [], ingresos: [], transferencias: [],
+      servicios: [],
       isLoading: false, initialized: false
     };
     this.listeners = [];
@@ -32,57 +33,87 @@ class AppStore {
       const response = await api.fetch('getall');
       if (response.status === 'success') {
         this.state = { ...this.state, ...response.data, isLoading: false };
-        console.log('Datos cargados:', this.state);
+        console.log('--- DEBUG DE VINCULACIÓN ---');
+        console.log('Cuentas encontradas:', this.state.cuentas.length);
+        console.log('Servicios encontrados:', this.state.servicios.length);
       }
     } catch (error) {
       this.state.isLoading = false;
-      console.error('Error de carga:', error);
     }
     this.notify();
   }
 
-  // --- Selectors ---
+  _parseNumber(val) {
+    if (val === undefined || val === null || val === '') return 0;
+    let s = val.toString().trim()
+      .replace(/[$\s]/g, '')
+      .replace(/\./g, '')
+      .replace(/,/g, '.');
+    const n = parseFloat(s);
+    return isNaN(n) ? 0 : n;
+  }
+
   getBalances() {
     const balances = {};
+    const idToName = {}; // Mapa para vincular IDs con Nombres
 
-    // 1. Inicializar con saldos base
+    // 1. Inicializar Cuentas
     this.state.cuentas.forEach(c => {
       const name = (c.nombre || '').toString().trim().toUpperCase();
+      const id = (c.id || '').toString().trim();
       if (!name) return;
+      
       balances[name] = {
-        displayName: c.nombre, // Para mostrarlo bonito en la UI
+        displayName: c.nombre,
         moneda: (c.moneda || 'ARS').toUpperCase(),
-        saldo: parseFloat(c.saldoInicial || 0)
+        saldo: this._parseNumber(c.saldoInicial)
       };
+      if (id) idToName[id] = name;
     });
 
-    // 2. Sumar Ingresos
+    // Función auxiliar para obtener el nombre de cuenta desde nombre o ID
+    const getAccName = (val) => {
+      if (!val) return '';
+      const v = val.toString().trim();
+      const vUpper = v.toUpperCase();
+      if (balances[vUpper]) return vUpper; // Es un nombre
+      if (idToName[v]) return idToName[v]; // Es un ID
+      return '';
+    };
+
+    // 2. Ingresos
     this.state.ingresos.forEach(i => {
-      const accountName = (i.cuentaDestino || i.cuentadestino || '').toString().trim().toUpperCase();
-      if (balances[accountName]) {
-        balances[accountName].saldo += parseFloat(i.importe || 0);
+      const accVal = i.cuentaDestino || i.cuentadestino || i.cuenta;
+      const accName = getAccName(accVal);
+      const imp = this._parseNumber(i.importe);
+      if (balances[accName]) {
+        balances[accName].saldo += imp;
+        console.log(`+ Ingreso en ${accName}: ${imp}`);
       }
     });
 
-    // 3. Restar Gastos
+    // 3. Gastos
     this.state.gastos.forEach(g => {
-      const accountName = (g.cuentaOrigen || g.cuentaorigen || '').toString().trim().toUpperCase();
-      if (balances[accountName]) {
-        balances[accountName].saldo -= parseFloat(g.importe || 0);
+      const accVal = g.cuentaOrigen || g.cuentaorigen || g.cuenta;
+      const accName = getAccName(accVal);
+      const imp = this._parseNumber(g.importe);
+      if (balances[accName]) {
+        balances[accName].saldo -= imp;
+        console.log(`- Gasto en ${accName}: ${imp}`);
       }
     });
 
-    // 4. Procesar Transferencias
+    // 4. Transferencias
     this.state.transferencias.forEach(t => {
-      const origen = (t.cuentaOrigen || t.cuentaorigen || '').toString().trim().toUpperCase();
-      const destino = (t.cuentaDestino || t.cuentadestino || '').toString().trim().toUpperCase();
+      const oriName = getAccName(t.cuentaOrigen || t.cuentaorigen);
+      const desName = getAccName(t.cuentaDestino || t.cuentadestino);
+      const imp = this._parseNumber(t.importe);
 
-      if (balances[origen]) {
-        balances[origen].saldo -= parseFloat(t.importe || 0);
-      }
-      if (balances[destino]) {
-        const amountToAdd = t.tipoCambio ? (parseFloat(t.importe) / parseFloat(t.tipoCambio)) : parseFloat(t.importe);
-        balances[destino].saldo += (amountToAdd || 0);
+      if (balances[oriName]) balances[oriName].saldo -= imp;
+      if (balances[desName]) {
+        const factor = this._parseNumber(t.tipoCambio) || 1;
+        const add = t.tipoCambio ? (imp / factor) : imp;
+        balances[desName].saldo += add;
       }
     });
 
@@ -95,13 +126,12 @@ class AppStore {
       const d = new Date(g.fecha);
       if (d.getMonth() === month && d.getFullYear() === year) {
         const cat = g.categoria || 'Otros';
-        summary[cat] = (summary[cat] || 0) + parseFloat(g.importe || 0);
+        summary[cat] = (summary[cat] || 0) + this._parseNumber(g.importe);
       }
     });
     return summary;
   }
 
-  // --- Actions ---
   async _performAction(action, body, successMsg) {
     toggleLoading(true);
     try {
@@ -119,16 +149,10 @@ class AppStore {
     return false;
   }
 
-  async addGasto(gasto) { return this._performAction('addGasto', gasto, 'Gasto guardado'); }
-  async addIngreso(ingreso) { return this._performAction('addIngreso', ingreso, 'Ingreso guardado'); }
+  async addGasto(g) { return this._performAction('addGasto', g, 'Gasto guardado'); }
+  async addIngreso(i) { return this._performAction('addIngreso', i, 'Ingreso guardado'); }
   async addTransferencia(t) { return this._performAction('addTransferencia', t, 'Transferencia lista'); }
-  async addCuenta(c) { return this._performAction('addCuenta', c, 'Cuenta creada'); }
-  async addTipoIngreso(n) { return this._performAction('addTipoIngreso', { nombre: n }, 'Agregado'); }
-  async deleteTipoIngreso(id) { return this._performAction('deleteTipoIngreso', { id }, 'Eliminado'); }
-  async addCategoria(c) { return this._performAction('addCategoria', c, 'Categoría agregada'); }
-  async deleteCategoria(id) { return this._performAction('deleteCategoria', { id }, 'Eliminado'); }
-  async addFormaPago(n) { return this._performAction('addFormaPago', { nombre: n }, 'Agregado'); }
-  async deleteFormaPago(id) { return this._performAction('deleteFormaPago', { id }, 'Eliminado'); }
+  async addPeriodo(p) { return this._performAction('addPeriodo', p, 'Ejercicio abierto'); }
 }
 
 export const store = new AppStore();

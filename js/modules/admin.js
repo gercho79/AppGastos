@@ -1,291 +1,157 @@
 import { store } from '../store.js';
 import { Modal } from '../components.js';
-import { api } from '../api.js';
 
 export const AdminView = {
   title: 'Administración',
   render(container) {
+    this.container = container;
+    
+    const periodosHtml = store.state.periodos.map(p => `
+      <div class="item-card" style="padding: 10px 16px;">
+        <span>Ejercicio ${p.anio || 'Desconocido'}</span>
+        <span class="badge" style="background: var(--success); color: white; padding: 2px 8px; border-radius: 10px; font-size: 10px;">${p.estado}</span>
+      </div>
+    `).join('');
+
     container.innerHTML = `
       <div class="admin-sections">
         
-        <!-- Períodos -->
         <div class="stat-card" style="margin-bottom: 24px;">
           <div class="flex-between">
             <h3>Apertura de Período</h3>
             <button id="add-periodo-btn" class="btn btn-primary btn-sm">Abrir Ejercicio 2026</button>
           </div>
-          <p class="stat-label">Define el año de ejercicio actual y futuros.</p>
           <div class="list-container" style="margin: 16px 0;">
-            ${store.state.periodos.map(p => `
-              <div class="item-card" style="padding: 10px 16px;">
-                <span>Ejercicio ${p.año}</span>
-                <span class="badge" style="background: var(--success); color: white; padding: 2px 8px; border-radius: 10px; font-size: 10px;">${p.estado}</span>
-              </div>
-            `).join('')}
+            ${periodosHtml}
           </div>
         </div>
 
-        <!-- Tipos de Ingreso -->
-        <div class="stat-card" style="margin-bottom: 24px;">
-          <div class="flex-between">
-            <h3>Tipos de Ingreso</h3>
-            <button id="add-tipo-ingreso-btn" class="btn btn-ghost btn-sm" title="Agregar Tipo">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20">
-                <line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" />
-              </svg>
-            </button>
+        <div class="admin-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px;">
+          <div class="stat-card">
+            <div class="flex-between">
+              <h3>Tipos de Ingreso</h3>
+              <button id="add-tipo-ingreso-btn" class="btn btn-ghost btn-sm">+</button>
+            </div>
+            <div class="list-container">${this.renderList(store.state.tiposIngreso, 'tipo')}</div>
           </div>
-          <div class="list-container" style="margin: 16px 0;">
-            ${store.state.tiposIngreso.map(t => `
-              <div class="item-card" style="padding: 10px 16px;">
-                <span>${t.nombre}</span>
-                <div class="item-actions">
-                  <button class="edit-tipo-btn" data-id="${t.id}" data-nombre="${t.nombre}">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
-                      <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" /><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" />
-                    </svg>
-                  </button>
-                  <button class="delete-tipo-btn" data-id="${t.id}">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
-                      <polyline points="3 6 5 6 21 6" /><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2" />
-                    </svg>
-                  </button>
-                </div>
-              </div>
-            `).join('')}
+
+          <div class="stat-card">
+            <div class="flex-between">
+              <h3>Categorías</h3>
+              <button id="add-categoria-btn" class="btn btn-ghost btn-sm">+</button>
+            </div>
+            <div class="list-container">${this.renderList(store.state.categorias, 'cat')}</div>
+          </div>
+
+          <div class="stat-card">
+            <div class="flex-between">
+              <h3>Formas de Pago</h3>
+              <button id="add-forma-pago-btn" class="btn btn-ghost btn-sm">+</button>
+            </div>
+            <div class="list-container">${this.renderList(store.state.formasPago, 'forma')}</div>
+          </div>
+
+          <div class="stat-card">
+            <div class="flex-between">
+              <h3>Servicios</h3>
+              <button id="add-servicio-btn" class="btn btn-ghost btn-sm">+</button>
+            </div>
+            <div class="list-container">${this.renderList(store.state.servicios, 'servicio')}</div>
           </div>
         </div>
-
-        <!-- Categorías -->
-        <div class="stat-card" style="margin-bottom: 24px;">
-          <div class="flex-between">
-            <h3>Categorías</h3>
-            <button id="add-categoria-btn" class="btn btn-ghost btn-sm" title="Agregar Categoría">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20">
-                <line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" />
-              </svg>
-            </button>
-          </div>
-          <div class="list-container" style="margin: 16px 0;">
-            ${store.state.categorias.map(c => `
-              <div class="item-card" style="padding: 10px 16px;">
-                <div class="flex-center" style="gap: 12px;">
-                  <span style="font-size: 1.2rem;">${c.icono || '📁'}</span>
-                  <span>${c.nombre}</span>
-                </div>
-                <div class="item-actions">
-                  <button class="edit-cat-btn" data-id="${c.id}" data-nombre="${c.nombre}" data-icono="${c.icono || ''}">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
-                      <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" /><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" />
-                    </svg>
-                  </button>
-                  <button class="delete-cat-btn" data-id="${c.id}">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
-                      <polyline points="3 6 5 6 21 6" /><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2" />
-                    </svg>
-                  </button>
-                </div>
-              </div>
-            `).join('')}
-          </div>
-        </div>
-
-        <div class="stat-card">
-          <div class="flex-between">
-            <h3>Formas de Pago</h3>
-            <button id="add-forma-pago-btn" class="btn btn-ghost btn-sm" title="Agregar Forma de Pago">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20">
-                <line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y2="12" x2="19" y2="12" />
-              </svg>
-            </button>
-          </div>
-          <div class="list-container" style="margin: 16px 0;">
-            ${store.state.formasPago.map(f => `
-              <div class="item-card" style="padding: 10px 16px;">
-                <span>${f.nombre}</span>
-                <div class="item-actions">
-                  <button class="edit-forma-btn" data-id="${f.id}" data-nombre="${f.nombre}">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
-                      <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" /><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" />
-                    </svg>
-                  </button>
-                  <button class="delete-forma-btn" data-id="${f.id}">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
-                      <polyline points="3 6 5 6 21 6" /><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2" />
-                    </svg>
-                  </button>
-                </div>
-              </div>
-            `).join('')}
-          </div>
-        </div>
-
       </div>
     `;
 
-    this.setupEventListeners(container);
+    this.setupEventListeners();
   },
 
-  setupEventListeners(container) {
-    // Periodo
-    document.getElementById('add-periodo-btn').onclick = async () => {
-      await store.addPeriodo({ año: 2026, estado: 'Abierto' });
-      this.render(container);
+  renderList(items, type) {
+    if (!items || items.length === 0) return '<p class="stat-label">Sin registros</p>';
+    return items.map(item => `
+      <div class="item-card" style="padding: 8px 12px; margin-bottom: 8px;">
+        <span>${item.nombre}</span>
+        <button class="delete-btn" data-type="${type}" data-id="${item.id}" style="background:none; border:none; color:var(--danger); cursor:pointer;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>
+        </button>
+      </div>
+    `).join('');
+  },
+
+  setupEventListeners() {
+    const btnMap = {
+      'add-periodo-btn': async () => {
+        if(confirm('¿Abrir el ejercicio 2026?')) {
+          await store.addPeriodo({ anio: 2026, estado: 'Abierto' });
+          this.render(this.container);
+        }
+      },
+      'add-tipo-ingreso-btn': () => this.showSimpleForm('Nuevo Tipo', async (v) => await store.addTipoIngreso(v)),
+      'add-categoria-btn': () => this.showSimpleForm('Nueva Categoría', async (v) => await store.addCategoria({ nombre: v })),
+      'add-forma-pago-btn': () => this.showSimpleForm('Nueva Forma de Pago', async (v) => await store.addFormaPago(v)),
+      'add-servicio-btn': () => this.showSimpleForm('Nuevo Servicio', async (v) => await store.addServicio(v))
     };
 
-    // Tipos de Ingreso - Agregar
-    document.getElementById('add-tipo-ingreso-btn').onclick = () => {
-      this.showTipoForm(container);
-    };
-
-    // Tipos de Ingreso - Editar/Eliminar
-    container.querySelectorAll('.edit-tipo-btn').forEach(btn => {
-      btn.onclick = () => {
-        this.showTipoForm(container, { id: btn.dataset.id, nombre: btn.dataset.nombre });
-      };
+    Object.entries(btnMap).forEach(([id, fn]) => {
+      const el = document.getElementById(id);
+      if (el) el.onclick = fn;
     });
 
-    container.querySelectorAll('.delete-tipo-btn').forEach(btn => {
+    this.container.querySelectorAll('.delete-btn').forEach(btn => {
       btn.onclick = async () => {
-        await store.deleteTipoIngreso(btn.dataset.id);
-        this.render(container);
-      };
-    });
-
-    // Categorías - Agregar
-    document.getElementById('add-categoria-btn').onclick = () => {
-      this.showCategoriaForm(container);
-    };
-
-    // Categorías - Editar/Eliminar
-    container.querySelectorAll('.edit-cat-btn').forEach(btn => {
-      btn.onclick = () => {
-        this.showCategoriaForm(container, { id: btn.dataset.id, nombre: btn.dataset.nombre, icono: btn.dataset.icono });
-      };
-    });
-
-    container.querySelectorAll('.delete-cat-btn').forEach(btn => {
-      btn.onclick = async () => {
-        await store.deleteCategoria(btn.dataset.id);
-        this.render(container);
-      };
-    });
-
-    // Formas de Pago - Agregar
-    document.getElementById('add-forma-pago-btn').onclick = () => {
-      this.showFormaPagoForm(container);
-    };
-
-    // Formas de Pago - Editar/Eliminar
-    container.querySelectorAll('.edit-forma-btn').forEach(btn => {
-      btn.onclick = () => {
-        this.showFormaPagoForm(container, { id: btn.dataset.id, nombre: btn.dataset.nombre });
-      };
-    });
-
-    container.querySelectorAll('.delete-forma-btn').forEach(btn => {
-      btn.onclick = async () => {
-        await store.deleteFormaPago(btn.dataset.id);
-        this.render(container);
+        if (!confirm('¿Seguro?')) return;
+        const { type, id } = btn.dataset;
+        if (type === 'tipo') await store.deleteTipoIngreso(id);
+        if (type === 'cat') await store.deleteCategoria(id);
+        if (type === 'forma') await store.deleteFormaPago(id);
+        if (type === 'servicio') await store.deleteServicio(id);
+        this.render(this.container);
       };
     });
   },
 
-  showTipoForm(container, data = null) {
-    const isEdit = !!data;
-    const content = `
-      <form id="tipo-form" class="modal-form">
-        <div class="form-group">
-          <label class="form-label">Nombre del Tipo de Ingreso</label>
-          <input type="text" id="tipo-nombre" class="form-input" value="${data ? data.nombre : ''}" required placeholder="Ej: Sueldo, Regalo, Venta...">
-        </div>
-        <div class="modal-actions">
-          <button type="button" class="btn btn-ghost" id="cancel-btn">Cancelar</button>
-          <button type="submit" class="btn btn-primary">${isEdit ? 'Actualizar' : 'Guardar'}</button>
-        </div>
-      </form>
+  showSimpleForm(title, onSave) {
+    const form = document.createElement('form');
+    form.className = 'modal-form';
+    form.innerHTML = `
+      <div class="form-group">
+        <label class="form-label">Nombre</label>
+        <input type="text" id="simple-name" class="form-input" required placeholder="Escribe aquí...">
+      </div>
+      <div class="modal-actions" style="margin-top: 20px; display: flex; gap: 10px;">
+        <button type="button" class="btn btn-ghost" id="modal-cancel-btn">Cancelar</button>
+        <button type="submit" class="btn btn-primary" id="modal-save-btn" style="flex: 1;">Guardar</button>
+      </div>
     `;
-    
-    Modal.show(isEdit ? 'Editar Tipo de Ingreso' : 'Nuevo Tipo de Ingreso', content);
-    
-    document.getElementById('cancel-btn').onclick = () => Modal.hide();
-    document.getElementById('tipo-form').onsubmit = async (e) => {
-      e.preventDefault();
-      const nombre = document.getElementById('tipo-nombre').value;
-      if (isEdit) {
-        await store.updateTipoIngreso(data.id, nombre);
-      } else {
-        await store.addTipoIngreso(nombre);
-      }
-      Modal.hide();
-      this.render(container);
-    };
-  },
 
-  showCategoriaForm(container, data = null) {
-    const isEdit = !!data;
-    const content = `
-      <form id="cat-form" class="modal-form">
-        <div class="form-group">
-          <label class="form-label">Nombre de la Categoría</label>
-          <input type="text" id="cat-nombre" class="form-input" value="${data ? data.nombre : ''}" required placeholder="Ej: Comida, Salud, Ocio...">
-        </div>
-        <div class="form-group">
-          <label class="form-label">Emoji / Icono</label>
-          <input type="text" id="cat-icono" class="form-input" value="${data ? data.icono : '📁'}" placeholder="Ej: 🍔, 🚗, 💡...">
-        </div>
-        <div class="modal-actions">
-          <button type="button" class="btn btn-ghost" id="cancel-btn">Cancelar</button>
-          <button type="submit" class="btn btn-primary">${isEdit ? 'Actualizar' : 'Guardar'}</button>
-        </div>
-      </form>
-    `;
-    
-    Modal.show(isEdit ? 'Editar Categoría' : 'Nueva Categoría', content);
-    
-    document.getElementById('cancel-btn').onclick = () => Modal.hide();
-    document.getElementById('cat-form').onsubmit = async (e) => {
+    form.onsubmit = async (e) => {
       e.preventDefault();
-      const nombre = document.getElementById('cat-nombre').value;
-      const icono = document.getElementById('cat-icono').value;
-      if (isEdit) {
-        await store.updateCategoria(data.id, { nombre, icono });
-      } else {
-        await store.addCategoria({ nombre, icono });
-      }
-      Modal.hide();
-      this.render(container);
-    };
-  },
+      const val = form.querySelector('#simple-name').value.trim();
+      if (!val) return;
 
-  showFormaPagoForm(container, data = null) {
-    const isEdit = !!data;
-    const content = `
-      <form id="forma-pago-form" class="modal-form">
-        <div class="form-group">
-          <label class="form-label">Nombre de la Forma de Pago</label>
-          <input type="text" id="forma-pago-nombre" class="form-input" value="${data ? data.nombre : ''}" required placeholder="Ej: Efectivo, Tarjeta, Transferencia...">
-        </div>
-        <div class="modal-actions">
-          <button type="button" class="btn btn-ghost" id="cancel-btn">Cancelar</button>
-          <button type="submit" class="btn btn-primary">${isEdit ? 'Actualizar' : 'Guardar'}</button>
-        </div>
-      </form>
-    `;
-    
-    Modal.show(isEdit ? 'Editar Forma de Pago' : 'Nueva Forma de Pago', content);
-    
-    document.getElementById('cancel-btn').onclick = () => Modal.hide();
-    document.getElementById('forma-pago-form').onsubmit = async (e) => {
-      e.preventDefault();
-      const nombre = document.getElementById('forma-pago-nombre').value;
-      if (isEdit) {
-        await store.updateFormaPago(data.id, nombre);
-      } else {
-        await store.addFormaPago(nombre);
+      const saveBtn = form.querySelector('#modal-save-btn');
+      saveBtn.disabled = true;
+      saveBtn.textContent = 'Guardando...';
+
+      try {
+        const success = await onSave(val);
+        if (success !== false) {
+          Modal.hide();
+          this.render(this.container);
+        }
+      } catch (err) {
+        console.error(err);
+      } finally {
+        saveBtn.disabled = false;
+        saveBtn.textContent = 'Guardar';
       }
-      Modal.hide();
-      this.render(container);
     };
+
+    Modal.show(title, form);
+    const cancelBtn = document.getElementById('modal-cancel-btn');
+    if (cancelBtn) cancelBtn.onclick = () => Modal.hide();
+    setTimeout(() => {
+      const input = document.getElementById('simple-name');
+      if (input) input.focus();
+    }, 200);
   }
 };
