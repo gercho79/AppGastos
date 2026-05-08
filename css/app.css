@@ -630,6 +630,49 @@ body {
   }
 }
 
+/* Sidebar Mobile Active (Slide-in Drawer) */
+@media (max-width: 992px) {
+  .sidebar.mobile-active {
+    display: flex;
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: var(--sidebar-width);
+    z-index: 1001;
+    animation: slideInLeft 0.3s ease-out;
+  }
+}
+
+@keyframes slideInLeft {
+  from { transform: translateX(-100%); }
+  to { transform: translateX(0); }
+}
+
+/* Sidebar Overlay */
+.sidebar-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(2px);
+  z-index: 1000;
+}
+
+/* Bottom nav adjustments for 5 items */
+@media (max-width: 480px) {
+  .bottom-nav-item {
+    font-size: 0.6rem;
+    gap: 2px;
+  }
+  .bottom-nav-item svg {
+    width: 20px;
+    height: 20px;
+  }
+  .bottom-nav {
+    padding: 0 8px;
+  }
+}
+
 /* Dashboard Styles */
 .dashboard-grid {
   display: grid;

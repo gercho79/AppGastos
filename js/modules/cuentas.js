@@ -9,22 +9,24 @@ export const CuentasView = {
     const balances = store.getBalances();
     
     container.innerHTML = `
-      <div class="view-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+      <div class="view-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-wrap: wrap; gap: 12px;">
         <h2>Gestión de Cuentas</h2>
         <button id="add-cuenta-btn" class="btn btn-primary">Nueva Cuenta</button>
       </div>
 
       <div class="list-container">
         ${store.state.cuentas.map(c => {
-          const balance = balances[c.nombre?.toUpperCase()]?.saldo || 0;
+          const key = (c.nombre || '').toString().trim().toUpperCase();
+          const balance = balances[key]?.saldo || 0;
+          const moneda = balances[key]?.moneda || c.moneda || 'ARS';
           return `
-            <div class="item-card">
-              <div class="item-info">
+            <div class="item-card" style="flex-wrap: wrap; gap: 8px;">
+              <div class="item-info" style="min-width: 0; flex: 1;">
                 <h4>${c.nombre}</h4>
-                <p>Moneda: ${c.moneda} | ${c.activa ? 'Activa' : 'Inactiva'}</p>
+                <p>Moneda: ${c.moneda || 'ARS'} | ${c.activa ? 'Activa' : 'Inactiva'}</p>
               </div>
-              <div class="item-value ${balance < 0 ? 'negative' : 'positive'}" style="font-weight: 700;">
-                ${formatCurrency(balance, c.moneda)}
+              <div class="item-value ${balance < 0 ? 'negative' : 'positive'}" style="font-weight: 700; white-space: nowrap;">
+                ${formatCurrency(balance, moneda)}
               </div>
             </div>
           `;
