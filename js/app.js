@@ -7,6 +7,7 @@ import { CuentasView } from './modules/cuentas.js';
 import { AdminView } from './modules/admin.js';
 import { auth } from './auth.js';
 import { Modal } from './components.js';
+import { HeaderWidget } from './header-widget.js';
 
 const routes = {
   'dashboard': DashboardView,
@@ -24,6 +25,7 @@ class App {
 
   async init() {
     this.setupEventListeners();
+    HeaderWidget.init();
 
     // Initialize Auth and Google Library
     auth.init((isAuthenticated) => {
