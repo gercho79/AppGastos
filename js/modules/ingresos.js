@@ -34,10 +34,10 @@ export const IngresosView = {
       <div class="item-card">
         <div class="item-info">
           <h4>${m.tipo === 'ingreso' ? (m.tipoingreso || 'Ingreso') : 'Transferencia'}</h4>
-          <p>${formatDate(m.fecha)} | ${m.tipo === 'ingreso' ? m.cuentadestino : `${m.cuentaorigen} ➔ ${m.cuentadestino}`}</p>
+          <p>${formatDate(m.fecha)} | ${m.tipo === 'ingreso' ? (m.cuentadestino || 'S/C') : `${m.cuentaorigen || '?'} ➔ ${m.cuentadestino || '?'}`}</p>
         </div>
         <div class="item-value ${m.tipo === 'ingreso' ? 'positive' : ''}" style="font-weight:700;">
-          ${m.tipo === 'ingreso' ? '+' : ''}${formatCurrency(m.importe, 'ARS')}
+          ${m.tipo === 'ingreso' ? '+' : ''}${formatCurrency(store._n(m.importe), 'ARS')}
         </div>
       </div>
     `).join('');

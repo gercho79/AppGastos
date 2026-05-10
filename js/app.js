@@ -27,6 +27,14 @@ class App {
     this.setupEventListeners();
     HeaderWidget.init();
 
+    // Set up router FIRST
+    this.router = new AppRouter(routes);
+
+    // Subscribe to store changes BEFORE auth init to avoid race conditions on mobile
+    store.subscribe(() => {
+      if (this.router) this.router.resolve();
+    });
+
     // Initialize Auth and Google Library
     auth.init((isAuthenticated) => {
       this.updateAuthUI(isAuthenticated);
@@ -34,8 +42,6 @@ class App {
         store.refreshAll();
       }
     });
-
-    this.router = new AppRouter(routes);
     
     // Refresh data periodically if authenticated
     setInterval(() => {
@@ -43,11 +49,6 @@ class App {
         store.refreshAll();
       }
     }, 5 * 60 * 1000);
-
-    // Auto-refresh current view when store changes
-    store.subscribe(() => {
-      if (this.router) this.router.resolve();
-    });
   }
 
   updateAuthUI(isAuthenticated) {

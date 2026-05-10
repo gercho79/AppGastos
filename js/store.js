@@ -35,9 +35,29 @@ class AppStore {
   }
 
   _n(val) {
-    if (!val) return 0;
-    const s = val.toString().replace(/[$\s]/g, '').replace(/\./g, '').replace(/,/g, '.');
-    const n = parseFloat(s);
+    if (val === null || val === undefined || val === '') return 0;
+    // If already a number, return directly
+    if (typeof val === 'number') return isNaN(val) ? 0 : val;
+
+    const s = val.toString().replace(/[$\s]/g, '').trim();
+    if (s === '') return 0;
+
+    // Argentine format: dots as thousands, comma as decimal (e.g. "5.551.411,09")
+    if (s.includes(',')) {
+      const n = parseFloat(s.replace(/\./g, '').replace(',', '.'));
+      return isNaN(n) ? 0 : n;
+    }
+
+    // Count dots to distinguish decimal from thousands
+    const dotCount = (s.match(/\./g) || []).length;
+    if (dotCount <= 1) {
+      // Single dot or no dot = standard decimal format (e.g. "5551411.09")
+      const n = parseFloat(s);
+      return isNaN(n) ? 0 : n;
+    }
+
+    // Multiple dots = thousands separators without decimal (e.g. "5.551.411")
+    const n = parseFloat(s.replace(/\./g, ''));
     return isNaN(n) ? 0 : n;
   }
 

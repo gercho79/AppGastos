@@ -25,11 +25,11 @@ export const GastosView = {
     return sorted.map(g => `
       <div class="item-card">
         <div class="item-info">
-          <h4>${g.categoria || 'Gasto'} - ${g.descripcion || ''}</h4>
+          <h4>${g.categoria || 'Gasto'}${g.descripcion ? ' - ' + g.descripcion : ''}</h4>
           <p>${formatDate(g.fecha)} | ${g.cuentaorigen || 'S/C'} | ${g.esservicio === 'TRUE' ? '✅ Servicio' : '💸 Gasto'}</p>
         </div>
         <div class="item-value negative" style="font-weight:700;">
-          -${formatCurrency(g.importe, 'ARS')}
+          -${formatCurrency(store._n(g.importe), 'ARS')}
         </div>
       </div>
     `).join('');
