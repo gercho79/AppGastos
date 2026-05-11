@@ -33,7 +33,10 @@ export const IngresosView = {
     return list.map(m => `
       <div class="item-card">
         <div class="item-info">
-          <h4>${m.tipo === 'ingreso' ? (m.tipoingreso || 'Ingreso') : 'Transferencia'}</h4>
+          <div style="display:flex; align-items:center; gap:8px;">
+            <h4>${m.tipo === 'ingreso' ? (m.tipoingreso || 'Ingreso') : 'Transferencia'}</h4>
+            ${m.isPendingSync ? '<span title="Guardado localmente. Pendiente de sincronizar" style="font-size:0.8rem;">☁️</span>' : ''}
+          </div>
           <p>${formatDate(m.fecha)} | ${m.tipo === 'ingreso' ? (m.cuentadestino || 'S/C') : `${m.cuentaorigen || '?'} ➔ ${m.cuentadestino || '?'}`}</p>
         </div>
         <div class="item-value ${m.tipo === 'ingreso' ? 'positive' : ''}" style="font-weight:700;">

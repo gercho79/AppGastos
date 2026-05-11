@@ -180,9 +180,19 @@ class AppStore {
   async _act(action, body, msg) {
     const payload = { id: Date.now(), ...body };
     
+    const stateMap = {
+      'addGasto': 'gastos', 'addIngreso': 'ingresos', 'addTransferencia': 'transferencias',
+      'addCuenta': 'cuentas', 'addTipoIngreso': 'tiposIngreso', 'addCategoria': 'categorias',
+      'addFormaPago': 'formasPago', 'addServicio': 'servicios', 'addPeriodo': 'periodos'
+    };
+    
     if (!navigator.onLine) {
       this.syncQueue.push({ action, body: payload, msg });
       this._saveQueue();
+      const key = stateMap[action];
+      if (key && this.state[key]) {
+        this.state[key].push({ ...payload, isPendingSync: true });
+      }
       showToast('Guardado offline. Se sincronizará al conectar.');
       return true; // Assume success locally
     }
@@ -200,6 +210,10 @@ class AppStore {
       if (e.message.includes('fetch') || !navigator.onLine) {
         this.syncQueue.push({ action, body: payload, msg });
         this._saveQueue();
+        const key = stateMap[action];
+        if (key && this.state[key]) {
+          this.state[key].push({ ...payload, isPendingSync: true });
+        }
         showToast('Guardado offline. Hubo un error de conexión.');
         return true;
       } else {
