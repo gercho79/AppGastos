@@ -31,15 +31,16 @@ class App {
     this.router = new AppRouter(routes);
 
     // Subscribe to store changes BEFORE auth init to avoid race conditions on mobile
-    store.subscribe(() => {
+    store.subscribe((state) => {
       if (this.router) this.router.resolve();
+      this.updateSyncUI(state);
     });
 
     // Initialize Auth and Google Library
     auth.init((isAuthenticated) => {
       this.updateAuthUI(isAuthenticated);
       if (isAuthenticated) {
-        store.refreshAll();
+        store.processSyncQueue().then(() => store.refreshAll());
       }
     });
     
@@ -58,7 +59,7 @@ class App {
     if (isAuthenticated) {
       container.innerHTML = `
         <div style="margin-bottom: 12px; font-size: 0.85rem; color: var(--text-secondary); text-align: center;">
-          <div class="status-indicator sync-ok" style="display: inline-block; margin-right: 6px;"></div>
+          <div id="sidebar-sync-indicator" class="status-indicator sync-ok" style="display: inline-block; margin-right: 6px;"></div>
           Conectado
         </div>
         <button id="logout-btn" class="btn btn-ghost btn-sm btn-full">Cerrar Sesión</button>
@@ -74,7 +75,42 @@ class App {
     }
   }
 
+  updateSyncUI(state) {
+    const headerDot = document.querySelector('.sync-dot');
+    const sidebarDot = document.getElementById('sidebar-sync-indicator');
+    
+    let statusClass = 'sync-ok';
+    let title = 'Sincronizado';
+
+    if (!state.isOnline) {
+      statusClass = 'sync-error'; // Orange/Red
+      title = `Offline - ${state.syncQueueLength} pendientes`;
+    } else if (state.isSyncing || state.isLoading) {
+      statusClass = 'sync-syncing'; // Blue
+      title = 'Sincronizando...';
+    } else if (state.syncQueueLength > 0) {
+      statusClass = 'sync-warning'; // Yellow
+      title = `${state.syncQueueLength} pendientes de sincronizar`;
+    }
+
+    if (headerDot) {
+      headerDot.className = `sync-dot ${statusClass}`;
+      headerDot.parentElement.title = title;
+    }
+    if (sidebarDot) {
+      sidebarDot.className = `status-indicator ${statusClass}`;
+      sidebarDot.parentElement.title = title;
+    }
+  }
+
   setupEventListeners() {
+    // Network listeners
+    window.addEventListener('online', () => {
+      store.setOnlineStatus(true);
+    });
+    window.addEventListener('offline', () => {
+      store.setOnlineStatus(false);
+    });
     // Mobile Menu
     document.getElementById('mobile-menu-btn').addEventListener('click', () => {
       const sidebar = document.getElementById('sidebar');

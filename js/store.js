@@ -6,9 +6,11 @@ class AppStore {
     this.state = {
       periodos: [], cuentas: [], tiposIngreso: [], formasPago: [],
       categorias: [], gastos: [], ingresos: [], transferencias: [], servicios: [],
-      isLoading: false, initialized: false
+      isLoading: false, initialized: false, isOnline: navigator.onLine, syncQueueLength: 0
     };
     this.listeners = [];
+    this.syncQueue = JSON.parse(localStorage.getItem('appgastos_sync_queue') || '[]');
+    this.state.syncQueueLength = this.syncQueue.length;
   }
 
   subscribe(l) { this.listeners.push(l); return () => this.listeners = this.listeners.filter(x => x !== l); }
@@ -124,17 +126,85 @@ class AppStore {
     return balances;
   }
 
+  _saveQueue() {
+    localStorage.setItem('appgastos_sync_queue', JSON.stringify(this.syncQueue));
+    this.state.syncQueueLength = this.syncQueue.length;
+    this.notify();
+  }
+
+  setOnlineStatus(status) {
+    this.state.isOnline = status;
+    this.notify();
+    if (status) {
+      this.processSyncQueue();
+    }
+  }
+
+  async processSyncQueue() {
+    if (!this.state.isOnline || this.syncQueue.length === 0 || this.state.isSyncing) return;
+    
+    this.state.isSyncing = true;
+    this.notify();
+
+    let syncedCount = 0;
+    const initialLength = this.syncQueue.length;
+
+    try {
+      while (this.syncQueue.length > 0) {
+        const item = this.syncQueue[0];
+        const res = await api.post(item.action, item.body);
+        
+        if (res && res.status === 'success') {
+          this.syncQueue.shift(); // Remove successful item
+          this._saveQueue();
+          syncedCount++;
+        } else {
+          // If a request fails, stop syncing and try again later
+          break;
+        }
+      }
+      
+      if (syncedCount > 0) {
+        await this.refreshAll();
+        showToast(`Sincronizados ${syncedCount} registros pendientes`);
+      }
+    } catch (e) {
+      console.error('Error procesando cola de sincronización:', e);
+      // Stop syncing on error (e.g. auth error, network error)
+    } finally {
+      this.state.isSyncing = false;
+      this.notify();
+    }
+  }
+
   async _act(action, body, msg) {
+    const payload = { id: Date.now(), ...body };
+    
+    if (!navigator.onLine) {
+      this.syncQueue.push({ action, body: payload, msg });
+      this._saveQueue();
+      showToast('Guardado offline. Se sincronizará al conectar.');
+      return true; // Assume success locally
+    }
+
     toggleLoading(true);
     try {
-      const res = await api.post(action, { id: Date.now(), ...body });
+      const res = await api.post(action, payload);
       if (res && res.status === 'success') {
         await this.refreshAll();
         showToast(msg);
         return true;
       }
     } catch (e) {
-      showToast('Error: ' + e.message, 'error');
+      // If network fails unexpectedly during request, add to queue
+      if (e.message.includes('fetch') || !navigator.onLine) {
+        this.syncQueue.push({ action, body: payload, msg });
+        this._saveQueue();
+        showToast('Guardado offline. Hubo un error de conexión.');
+        return true;
+      } else {
+        showToast('Error: ' + e.message, 'error');
+      }
     } finally {
       toggleLoading(false);
     }

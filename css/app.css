@@ -586,8 +586,15 @@ body {
 }
 
 .sync-ok { background: var(--success); box-shadow: 0 0 8px var(--success); }
-.sync-pending { background: var(--warning); box-shadow: 0 0 8px var(--warning); }
+.sync-warning { background: var(--warning); box-shadow: 0 0 8px var(--warning); }
 .sync-error { background: var(--danger); box-shadow: 0 0 8px var(--danger); }
+.sync-syncing { background: var(--info); box-shadow: 0 0 8px var(--info); animation: syncPulse 1s infinite; }
+
+@keyframes syncPulse {
+  0% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(0.8); }
+  100% { opacity: 1; transform: scale(1); }
+}
 
 /* Responsive */
 @media (max-width: 992px) {
