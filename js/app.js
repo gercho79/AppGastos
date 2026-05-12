@@ -8,6 +8,7 @@ import { AdminView } from './modules/admin.js';
 import { auth } from './auth.js';
 import { Modal } from './components.js';
 import { HeaderWidget } from './header-widget.js';
+import { showToast } from './utils.js';
 
 const routes = {
   'dashboard': DashboardView,
@@ -111,7 +112,21 @@ class App {
     window.addEventListener('offline', () => {
       store.setOnlineStatus(false);
     });
-    // Mobile Menu
+
+    // Refresh Button
+    document.getElementById('refresh-btn').addEventListener('click', async () => {
+      if (!auth.isAuthenticated()) {
+        showToast('Debés conectar Google Sheets primero', 'error');
+        return;
+      }
+      const icon = document.getElementById('refresh-icon');
+      icon.style.animation = 'spin 0.8s linear infinite';
+      await store.refreshAll();
+      icon.style.animation = '';
+      showToast('Datos actualizados desde Google Sheets ✓');
+      // Re-render current view
+      if (this.router) this.router.resolve();
+    });
     document.getElementById('mobile-menu-btn').addEventListener('click', () => {
       const sidebar = document.getElementById('sidebar');
       const overlay = document.getElementById('sidebar-overlay');
