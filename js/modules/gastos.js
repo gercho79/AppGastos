@@ -154,7 +154,7 @@ export const GastosView = {
     const catOptions = store.state.categorias.map(c => `<option value="${c.nombre}">${c.nombre}</option>`).join('');
 
     form.innerHTML = `
-      <div class="form-group"><label class="form-label">Fecha</label><input type="date" id="g-fecha" class="form-input" value="${new Date().toISOString().split('T')[0]}" required></div>
+      <div class="form-group"><label class="form-label">Fecha</label><input type="date" id="g-fecha" class="form-input" value="${(() => { const now = new Date(); return `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`; })()}" required></div>
       <div class="form-group"><label class="form-label">Importe</label><input type="number" id="g-importe" class="form-input" step="0.01" required></div>
       <div class="form-group"><label class="form-label">Cuenta Origen</label><select id="g-cuenta" class="form-input" required>${store.state.cuentas.map(c => `<option value="${c.nombre}">${c.nombre}</option>`).join('')}</select></div>
       <div class="form-group"><label class="form-label">Forma de Pago</label><select id="g-formapago" class="form-input" required>${store.state.formasPago.map(f => `<option value="${f.nombre}">${f.nombre}</option>`).join('')}</select></div>
@@ -190,7 +190,8 @@ export const GastosView = {
         categoria: form.querySelector('#g-categoria').value,
         esservicio: isS ? 'TRUE' : 'FALSE',
         descripcion: isS ? form.querySelector('#g-servicio-val').value : form.querySelector('#g-desc').value,
-        periodo: new Date(form.querySelector('#g-fecha').value).getFullYear()
+        // Parsear manualmente para evitar bug UTC: new Date('2026-06-06') = día anterior en AR (UTC-3)
+        periodo: parseInt(form.querySelector('#g-fecha').value.split('-')[0], 10)
       };
       if (await store.addGasto(data)) { Modal.hide(); this.render(this.container); }
     };

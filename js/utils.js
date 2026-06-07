@@ -8,6 +8,15 @@ export const formatCurrency = (amount, currency = 'ARS') => {
 
 export const formatDate = (dateString) => {
   if (!dateString) return '---';
+  // Parsear manualmente para evitar conversión UTC → local que resta 1 día en Argentina (UTC-3)
+  // new Date("2026-06-06") interpreta como medianoche UTC = 21:00 del día anterior en AR
+  const parts = String(dateString).split('T')[0].split('-');
+  if (parts.length === 3) {
+    const [year, month, day] = parts.map(Number);
+    if (!isNaN(year) && !isNaN(month) && !isNaN(day)) {
+      return `${String(day).padStart(2,'0')}/${String(month).padStart(2,'0')}/${year}`;
+    }
+  }
   const date = new Date(dateString);
   if (isNaN(date.getTime())) return dateString;
   return new Intl.DateTimeFormat('es-AR', {
