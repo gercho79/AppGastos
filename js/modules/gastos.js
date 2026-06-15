@@ -193,7 +193,12 @@ export const GastosView = {
         // Parsear manualmente para evitar bug UTC: new Date('2026-06-06') = día anterior en AR (UTC-3)
         periodo: parseInt(form.querySelector('#g-fecha').value.split('-')[0], 10)
       };
-      if (await store.addGasto(data)) { Modal.hide(); this.render(this.container); }
+      if (await store.addGasto(data)) { 
+        Modal.hide(); 
+        if (this.container) {
+          this.render(this.container); 
+        }
+      }
     };
     Modal.show('Nuevo Gasto', form);
   }

@@ -172,6 +172,14 @@ class App {
     document.getElementById('modal-overlay').addEventListener('click', (e) => {
       if (e.target.id === 'modal-overlay') Modal.hide();
     });
+
+    // Global FAB Gasto
+    const fabGasto = document.getElementById('global-fab-gasto');
+    if (fabGasto) {
+      fabGasto.addEventListener('click', () => {
+        GastosView.showAddModal();
+      });
+    }
   }
 }
 
